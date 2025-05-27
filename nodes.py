@@ -1,0 +1,165 @@
+from enum import Enum
+
+class ProdRank(Enum):
+    A = ("A", 500)    # Baseline of 500 miranium per tick
+    B = ("B", 350)    # Baseline of 350 miranium per tick
+    C = ("C", 250)    # Baseline of 250 miranium per tick
+
+class RevRank(Enum):
+    S = ("S", 850)     # Baseline of 850 credits per tick
+    A = ("A", 750)     # Baseline of 750 credits per tick
+    B = ("B", 650)     # Baseline of 650 credits per tick
+    C = ("C", 550)     # Baseline of 550 credits per tick
+    D = ("D", 450)     # Baseline of 450 credits per tick
+    E = ("E", 300)     # Baseline of 300 credits per tick
+    F = ("F", 200)     # Baseline of 200 credits per tick
+
+class Node:
+    def __init__(self, name, prod_rank, rev_rank, combat_rank):
+        self.name = name                    # The name of the node, a string (ex. "FN Site 104")
+        self.prod_rank = prod_rank          # The rank of the node's production ability, which is a member of the ProdRank enum
+        self.rev_rank = rev_rank            # The rank of the node's revenue ability, which is a member of the RevRank enum
+        self.combat_rank = combat_rank      # The rank of the node's combat support, a string (ex. "A"), which is not used in any relevant calculations
+
+        self.prod_letter = prod_rank.value[0]
+        self.prod_value = prod_rank.value[1]
+
+        self.rev_letter = rev_rank.value[0]
+        self.rev_value = rev_rank.value[1]
+
+        self.connections = []       # List of Connection objects, not nodes
+
+    def get_adjacent_nodes(self):
+        # Return actual node objects that are connected to this one
+        adjacent = []
+        for connection in self.connections:
+            if connection.node1 == self:
+                adjacent.append(connection.node2)
+            else:
+                adjacent.append(connection.node1)
+        return adjacent
+    
+    def __repr__(self):
+        return f"Node({self.name}, {self.prod_rank}, {self.rev_rank}, {self.combat_rank})"
+    
+    def __str__(self):
+        return f"This is {self.name}, a node for FrontierNav with production rank {self.prod_letter}, revenue rank {self.rev_letter}, and combat rank {self.combat_rank}.\nIt has a base production of {self.prod_value} miranium and {self.rev_value} credits per tick."
+
+    
+class Connection:
+    def __init__(self, node1, node2):
+        self.node1 = node1
+        self.node2 = node2
+
+        node1.connections.append(self)
+        node2.connections.append(self)
+
+    def get_other_node(self, node):
+        if node == self.node1:
+            return self.node2
+        elif node == self.node2:
+            return self.node1
+        else:
+            raise ValueError(f"Node {node.name} is not part of this connection")
+
+class ProbeType(Enum):
+    BASIC = "Basic Probe"
+    MINING = "Mining Probe"
+    RESEARCH = "Research Probe"
+    BOOSTER = "Booster Probe"
+    DUPLICATOR = "Duplicator Probe"
+    STORAGE = "Storage Probe"
+    COMBAT = "Combat Probe"
+
+class Probe:
+    def __init__(self, probe_type, gen=None):
+        self.probe_type = probe_type    # The type of probe this instance contains, which is a member of the ProbeType enum
+        self.gen = gen                  # The generation of the probe, used for calculations (ex. 1 = G1, 2 = G2, 3 = G3, etc)
+
+    def __repr__(self):
+        return f"Probe({self.probe_type}, {self.gen})"
+
+    def __str__(self):
+        return f"This is a {self.probe_type} G{self.gen} probe for FrontierNav"
+
+class ProbeSlot:
+    node_to_slot = {}
+
+    def __init__(self, node):
+        self.node = node
+        self.installed_probe = Probe(ProbeType.BASIC)     # Initializes with a basic probe in each slot to reflect in-game behavior of FrontierNav
+        ProbeSlot.node_to_slot[node] = self
+
+    def install_probe(self, probe):
+        self.installed_probe = probe
+
+    def uninstall_probe(self):
+        self.installed_probe = None     # Used to block off probes that have not been unlocked yet
+
+    def calculate_output(self):
+        miranium = 0
+        credits = 0
+        storage = 0
+
+        if self.installed_probe.gen <= 0:
+            gen_multiplier = 1.0
+        elif self.installed_probe.gen <= 8:
+            gen_multiplier = 1 + (0.2 * (self.installed_probe.gen - 1))
+        elif self.installed_probe.gen == 9:
+            gen_multiplier = 1.1 + (0.2 * (self.installed_probe.gen - 1))
+        elif self.installed_probe.gen == 10:
+            gen_multiplier = 1.2 + (0.2 * (self.installed_probe.gen - 1))
+        else:
+            gen_multiplier = 3.0
+
+        match self.installed_probe.probe_type:
+            case ProbeType.BASIC:
+                miranium = self.node.prod_value * 0.50
+                credits = self.node.rev_value * 0.50
+                return miranium, credits, storage
+            case ProbeType.MINING:
+                miranium = self.node.prod_value * gen_multiplier
+                credits = self.node.rev_value * 0.30
+                return miranium, credits, storage
+            case ProbeType.RESEARCH:
+                miranium = self.node.prod_value * 0.50
+                credits = self.node.rev_value * gen_multiplier
+                return miranium, credits, storage
+            case ProbeType.BOOSTER:
+                miranium = self.node.prod_value * 0.10
+                credits = self.node.rev_value * 0.10
+
+                adjacent_nodes = self.node.get_adjacent_nodes()
+
+                for adj_node in adjacent_nodes:
+                    if adj_node in ProbeSlot.node_to_slot:
+                        adj_slot = ProbeSlot.node_to_slot[adj_node]
+                        if adj_slot.installed_probe.probe_type != ProbeType.BOOSTER:
+                            adj_miranium, adj_credits, adj_storage = adj_slot.calculate_output()
+                            if self.installed_probe.gen == 1:
+                                miranium += adj_miranium * 0.5
+                                credits += adj_credits * 0.5
+                                storage += adj_storage * 0.5
+                            elif self.installed_probe.gen == 2:
+                                miranium += adj_miranium * 1.0
+                                credits += adj_credits * 1.0
+                                storage += adj_storage * 1.0
+
+                return miranium, credits, storage
+            case ProbeType.DUPLICATOR:
+                # Needs additional logic for copying the attributes of the surrounding nodes
+                return miranium, credits, storage
+            case ProbeType.STORAGE:
+                miranium = self.node.prod_value * 0.10
+                credits = self.node.rev_value * 0.10
+                storage = 3000
+                return miranium, credits, storage
+            case ProbeType.COMBAT:
+                miranium = self.node.prod_value * 0.10
+                credits = self.node.rev_value * 0.10
+                return miranium, credits, storage
+            case __:
+                return miranium, credits, storage
+
+
+        
