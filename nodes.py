@@ -15,11 +15,14 @@ class RevRank(Enum):
     F = ("F", 200)     # Baseline of 200 credits per tick
 
 class Node:
-    def __init__(self, name, prod_rank, rev_rank, combat_rank):
+    def __init__(self, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources):
         self.name = name                    # The name of the node, a string (ex. "FN Site 104")
         self.prod_rank = prod_rank          # The rank of the node's production ability, which is a member of the ProdRank enum
         self.rev_rank = rev_rank            # The rank of the node's revenue ability, which is a member of the RevRank enum
         self.combat_rank = combat_rank      # The rank of the node's combat support, a string (ex. "A"), which is not used in any relevant calculations
+        
+        self.sightseeing = sightseeing              # A list of the node's sightseeing spots
+        self.prec_resources = prec_resources        # A list of available precious resources from the node
 
         self.prod_letter = prod_rank.value[0]   # The string of the node's production rank
         self.prod_value = prod_rank.value[1]    # The integer of the node's miranium production per tick
@@ -71,9 +74,9 @@ class ProbeType(Enum):
 
 class Probe:
     def __init__(self, probe_type, gen=None, name=None):
-        self.name = name                # The name of the probe as a string
         self.probe_type = probe_type    # The type of probe this instance contains, which is a member of the ProbeType enum
         self.gen = gen                  # The generation of the probe, used for calculations (ex. 1 = G1, 2 = G2, 3 = G3, etc)
+        self.name = name                # The name of the probe as a string
 
     def __repr__(self):
         return f"Probe({self.probe_type}, {self.gen}, {self.name})"
@@ -84,7 +87,7 @@ class ProbeSlot:
     def __init__(self, node):
         self.node = node
         self.installed_probe = Probe(ProbeType.BASIC)     # Initializes with a basic probe in each slot to reflect in-game behavior of FrontierNav
-        ProbeSlot.node_to_slot[node] = self
+        ProbeSlot.node_to_slot[node] = self               # Adds the ProbeSlot node to a list of Nodes with a ProbeSlot
 
     def __repr__(self):
         return f"ProbeSlot(node={self.node}, probe={self.installed_probe})"

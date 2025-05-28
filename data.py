@@ -5,39 +5,40 @@ def load_game_data():
     # In-game data for each node
     node_data = {
         "Primordia": [
-            ("fn_site_101", "FN Site 101", ProdRank.C, RevRank.S, "S"),
-            ("fn_site_102", "FN Site 102", ProdRank.C, RevRank.F, "B"),
-            ("fn_site_103", "FN Site 103", ProdRank.C, RevRank.E, "A"),
-            ("fn_site_104", "FN Site 104", ProdRank.C, RevRank.S, "B"),
-            ("fn_site_105", "FN Site 105", ProdRank.A, RevRank.F, "B"),
-            ("fn_site_106", "FN Site 106", ProdRank.B, RevRank.E, "B"),
-            ("fn_site_107", "FN Site 107", ProdRank.A, RevRank.F, "B"),
-            ("fn_site_108", "FN Site 108", ProdRank.C, RevRank.F, "B"),
-            ("fn_site_109", "FN Site 109", ProdRank.C, RevRank.D, "B"),
-            ("fn_site_110", "FN Site 110", ProdRank.C, RevRank.E, "B"),
-            ("fn_site_111", "FN Site 111", ProdRank.C, RevRank.F, "B"),
-            ("fn_site_112", "FN Site 112", ProdRank.A, RevRank.F, "A"),
-            ("fn_site_113", "FN Site 113", ProdRank.C, RevRank.C, "B"),
-            ("fn_site_114", "FN Site 114", ProdRank.C, RevRank.E, "B"),
-            ("fn_site_115", "FN Site 115", ProdRank.C, RevRank.D, "B"),
-            ("fn_site_116", "FN Site 116", ProdRank.A, RevRank.D, "B"),
-            ("fn_site_117", "FN Site 117", ProdRank.A, RevRank.D, "A"),
-            ("fn_site_118", "FN Site 118", ProdRank.C, RevRank.E, "B"),
-            ("fn_site_119", "FN Site 119", ProdRank.C, RevRank.E, "B"),
-            ("fn_site_120", "FN Site 120", ProdRank.B, RevRank.B, "B"),
-            ("fn_site_121", "FN Site 121", ProdRank.A, RevRank.E, "B"),
+            # id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources, [connected_node_ids]
+            ("fn101", "FN Site 101", ProdRank.C, RevRank.S, "S", ["Stonelattice Cavern"], None, ["fn105"]),
+            ("fn102", "FN Site 102", ProdRank.C, RevRank.F, "B", None, None, ["fn104"]),
+            ("fn103", "FN Site 103", ProdRank.C, RevRank.E, "A", ["Wonderment Bluff"], None, ["fn105", "fn106", "fn222"]),
+            ("fn104", "FN Site 104", ProdRank.C, RevRank.S, "B", ["Headwater Cliff"], None, ["fn102", "fn106"]),
+            ("fn105", "FN Site 105", ProdRank.A, RevRank.F, "B", None, None, ["fn101", "fn103", "fn109"]),
+            ("fn106", "FN Site 106", ProdRank.B, RevRank.E, "B", ["Turtle Nest"], ["Arc Sand Ore"], ["fn103", "fn104", "fn107"]),
+            ("fn107", "FN Site 107", ProdRank.A, RevRank.F, "B", None, None, ["fn106", "fn110"]),
+            ("fn108", "FN Site 108", ProdRank.C, RevRank.F, "B", None, ["Arc Sand Ore", "Aurorite", "Foucaultium"], ["fn109"]),
+            ("fn109", "FN Site 109", ProdRank.C, RevRank.D, "B", None, ["Dawnstone", "Foucaultium", "Lionbone Bort"], ["fn105", "fn108"]),
+            ("fn110", "FN Site 110", ProdRank.C, RevRank.E, "B", ["Talon Rock Prominence"], ["Arc Sand Ore", "Aurorite", "Dawnstone", "White Cometite"], ["fn107", "fn111", "fn112"]),
+            ("fn111", "FN Site 111", ProdRank.C, RevRank.F, "B", None, ["Foucaultium"], ["fn110", "fn113"]),
+            ("fn112", "FN Site 112", ProdRank.A, RevRank.F, "A", None, None, ["fn110", "fn114", "fn115"]),
+            ("fn113", "FN Site 113", ProdRank.C, RevRank.C, "B", None, None, ["fn111", "fn409"]),
+            ("fn114", "FN Site 114", ProdRank.C, RevRank.E, "B", None, None, ["fn112", "fn116"]),
+            ("fn115", "FN Site 115", ProdRank.C, RevRank.D, "B", None, ["Arc Sand Ore", "Lionbone Bort", "White Cometite"], ["fn112"]),
+            ("fn116", "FN Site 116", ProdRank.A, RevRank.D, "B", None, None, ["fn114", "fn117"]),
+            ("fn117", "FN Site 117", ProdRank.A, RevRank.D, "A", ["Rock Cavern"], None, ["fn116", "fn118", "fn120"]),
+            ("fn118", "FN Site 118", ProdRank.C, RevRank.E, "B", None, ["Aurorite", "Dawnstone", "White Cometite"], ["fn117", "fn121"]),
+            ("fn119", "FN Site 119", ProdRank.C, RevRank.E, "B", None, None, ["fn120"]),
+            ("fn120", "FN Site 120", ProdRank.B, RevRank.B, "B", None, None, ["fn117", "fn119"]),
+            ("fn121", "FN Site 121", ProdRank.A, RevRank.E, "B", None, None, ["fn118", "fn301"]),
         ],
         "Noctilum": [
-            # Need to do Noctilum nodes (2xx)
+            # Need to do Noctilum nodes (FN Site 2xx)
         ],
         "Oblivia": [
-            # Need to do Oblivia nodes (3xx)
+            # Need to do Oblivia nodes (FN Site 3xx)
         ],
         "Sylvalum": [
-            # Need to do Sylvalum nodes (4xx)
+            # Need to do Sylvalum nodes (FN Site 4xx)
         ],
         "Cauldros": [
-            # Need to do Cauldros nodes (5xx)
+            # Need to do Cauldros nodes (FN Site 5xx)
         ]
     }
 
@@ -45,8 +46,8 @@ def load_game_data():
     nodes = {}
     for region, region_nodes_data in node_data.items():
         nodes[region] = {}
-        for node_id, name, prod_rank, rev_rank, combat_rank in region_nodes_data:
-            nodes[region][node_id] = Node(name, prod_rank, rev_rank, combat_rank)
+        for node_id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources in region_nodes_data:
+            nodes[region][node_id] = Node(name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources)
 
     # Creates connections between nodes which are connected in game for adjacent bonuses
     connections = [
@@ -64,7 +65,7 @@ def load_game_data():
     probe_types_and_gens = {
         "basic": None,
         "mining": 10, 
-        "research": 10, 
+        "research": 6, 
         "booster": 2, 
         "duplicator": None, 
         "storage": None, 
