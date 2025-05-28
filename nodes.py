@@ -21,16 +21,16 @@ class Node:
         self.rev_rank = rev_rank            # The rank of the node's revenue ability, which is a member of the RevRank enum
         self.combat_rank = combat_rank      # The rank of the node's combat support, a string (ex. "A"), which is not used in any relevant calculations
 
-        self.prod_letter = prod_rank.value[0]
-        self.prod_value = prod_rank.value[1]
+        self.prod_letter = prod_rank.value[0]   # The string of the node's production rank
+        self.prod_value = prod_rank.value[1]    # The integer of the node's miranium production per tick
 
-        self.rev_letter = rev_rank.value[0]
-        self.rev_value = rev_rank.value[1]
+        self.rev_letter = rev_rank.value[0]     # The string of the node's revenue rank
+        self.rev_value = rev_rank.value[1]      # The integer of the node's credit production per tick
 
         self.connections = []       # List of Connection objects, not nodes
 
     def get_adjacent_nodes(self):
-        # Return actual node objects that are connected to this one
+        # Return a list of node objects that are connected to self
         adjacent = []
         for connection in self.connections:
             if connection.node1 == self:
@@ -41,12 +41,10 @@ class Node:
     
     def __repr__(self):
         return f"Node({self.name}, {self.prod_rank}, {self.rev_rank}, {self.combat_rank})"
-    
-    def __str__(self):
-        return f"This is {self.name}, a node for FrontierNav with production rank {self.prod_letter}, revenue rank {self.rev_letter}, and combat rank {self.combat_rank}.\nIt has a base production of {self.prod_value} miranium and {self.rev_value} credits per tick."
 
     
 class Connection:
+    # Tells the nodes that they are connected to one another
     def __init__(self, node1, node2):
         self.node1 = node1
         self.node2 = node2
@@ -72,15 +70,13 @@ class ProbeType(Enum):
     COMBAT = "Combat Probe"
 
 class Probe:
-    def __init__(self, probe_type, gen=None):
+    def __init__(self, probe_type, gen=None, name=None):
+        self.name = name                # The name of the probe as a string
         self.probe_type = probe_type    # The type of probe this instance contains, which is a member of the ProbeType enum
         self.gen = gen                  # The generation of the probe, used for calculations (ex. 1 = G1, 2 = G2, 3 = G3, etc)
 
     def __repr__(self):
-        return f"Probe({self.probe_type}, {self.gen})"
-
-    def __str__(self):
-        return f"This is a {self.probe_type} G{self.gen} probe for FrontierNav"
+        return f"Probe({self.probe_type}, {self.gen}, {self.name})"
 
 class ProbeSlot:
     node_to_slot = {}
@@ -89,6 +85,12 @@ class ProbeSlot:
         self.node = node
         self.installed_probe = Probe(ProbeType.BASIC)     # Initializes with a basic probe in each slot to reflect in-game behavior of FrontierNav
         ProbeSlot.node_to_slot[node] = self
+
+    def __repr__(self):
+        return f"ProbeSlot(node={self.node}, probe={self.installed_probe})"
+
+    def __str__(self):
+        return f"ProbeSlot(node={self.node}, probe={self.installed_probe})"
 
     def install_probe(self, probe):
         self.installed_probe = probe
@@ -112,19 +114,24 @@ class ProbeSlot:
         else:
             gen_multiplier = 3.0
 
+
         match self.installed_probe.probe_type:
+
             case ProbeType.BASIC:
                 miranium = self.node.prod_value * 0.50
                 credits = self.node.rev_value * 0.50
                 return miranium, credits, storage
+
             case ProbeType.MINING:
                 miranium = self.node.prod_value * gen_multiplier
                 credits = self.node.rev_value * 0.30
                 return miranium, credits, storage
+
             case ProbeType.RESEARCH:
                 miranium = self.node.prod_value * 0.50
                 credits = self.node.rev_value * gen_multiplier
                 return miranium, credits, storage
+
             case ProbeType.BOOSTER:
                 miranium = self.node.prod_value * 0.10
                 credits = self.node.rev_value * 0.10
@@ -146,18 +153,22 @@ class ProbeSlot:
                                 storage += adj_storage * 1.0
 
                 return miranium, credits, storage
+
             case ProbeType.DUPLICATOR:
                 # Needs additional logic for copying the attributes of the surrounding nodes
                 return miranium, credits, storage
+
             case ProbeType.STORAGE:
                 miranium = self.node.prod_value * 0.10
                 credits = self.node.rev_value * 0.10
                 storage = 3000
                 return miranium, credits, storage
+
             case ProbeType.COMBAT:
                 miranium = self.node.prod_value * 0.10
                 credits = self.node.rev_value * 0.10
                 return miranium, credits, storage
+                
             case __:
                 return miranium, credits, storage
 
