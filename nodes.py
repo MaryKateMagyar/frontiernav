@@ -43,7 +43,7 @@ class Node:
         return adjacent
     
     def __repr__(self):
-        return f"Node({self.name}, {self.prod_rank}, {self.rev_rank}, {self.combat_rank})"
+        return f"Node({self.name}, {self.prod_rank}, {self.rev_rank}, {self.combat_rank}, {self.sightseeing}, {self.prec_resources})"
 
     
 class Connection:
@@ -106,17 +106,6 @@ class ProbeSlot:
         credits = 0
         storage = 0
 
-        if self.installed_probe.gen <= 0:
-            gen_multiplier = 1.0
-        elif self.installed_probe.gen <= 8:
-            gen_multiplier = 1 + (0.2 * (self.installed_probe.gen - 1))
-        elif self.installed_probe.gen == 9:
-            gen_multiplier = 1.1 + (0.2 * (self.installed_probe.gen - 1))
-        elif self.installed_probe.gen == 10:
-            gen_multiplier = 1.2 + (0.2 * (self.installed_probe.gen - 1))
-        else:
-            gen_multiplier = 3.0
-
 
         match self.installed_probe.probe_type:
 
@@ -126,13 +115,35 @@ class ProbeSlot:
                 return miranium, credits, storage
 
             case ProbeType.MINING:
+                if self.installed_probe.gen <= 0:
+                    gen_multiplier = 1.0
+                elif self.installed_probe.gen <= 8:
+                    gen_multiplier = 1 + (0.2 * (self.installed_probe.gen - 1))
+                elif self.installed_probe.gen == 9:
+                    gen_multiplier = 1.1 + (0.2 * (self.installed_probe.gen - 1))
+                elif self.installed_probe.gen == 10:
+                    gen_multiplier = 1.2 + (0.2 * (self.installed_probe.gen - 1))
+                else:
+                    gen_multiplier = 3.0
+
                 miranium = self.node.prod_value * gen_multiplier
                 credits = self.node.rev_value * 0.30
                 return miranium, credits, storage
 
             case ProbeType.RESEARCH:
+                if self.intalled_probe.gen <= 1:
+                    gen_multiplier = 1.5
+                elif self.installed_probe.gen <= 6:
+                    gen_multiplier = 0.5 * (self.installed_probe.gen + 3)
+                else:
+                    gen_multiplier = 4.5
+
                 miranium = self.node.prod_value * 0.50
                 credits = self.node.rev_value * gen_multiplier
+
+                if self.node.sightseeing:
+                    credits += len(self.node.sightseeing) * (500 * (self.installed_probe.gen + 3))
+
                 return miranium, credits, storage
 
             case ProbeType.BOOSTER:
