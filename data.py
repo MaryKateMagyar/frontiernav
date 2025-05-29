@@ -29,7 +29,32 @@ def load_game_data():
             ("fn121", "FN Site 121", ProdRank.A, RevRank.E, "B", None, None, ["fn118", "fn301"]),
         ],
         "Noctilum": [
-            # Need to do Noctilum nodes (FN Site 2xx)
+            # id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources, [connected_node_ids]
+            ("fn201", "FN Site 201", ProdRank.C, RevRank.B, "S", None, None, ["fn206"]),
+            ("fn202", "FN Site 202", ProdRank.C, RevRank.C, "B", None, ["Cimmerian Cinnabar", "Everfreeze Ore"], ["fn203", "fn207", "fn208"]),
+            ("fn203", "FN Site 203", ProdRank.C, RevRank.A, "B", None, ["Cimmerian Cinnabar"], ["fn202", "fn204"]),
+            ("fn204", "FN Site 204", ProdRank.A, RevRank.C, "B", None, None, ["fn203", "fn205", "fn211", "fn212"]),
+            ("fn205", "FN Site 205", ProdRank.A, RevRank.F, "B", None, None, ["fn204", "fn209"]),
+            ("fn206", "FN Site 206", ProdRank.B, RevRank.A, "S", None, None, ["fn201", "fn207", "fn213"]),
+            ("fn207", "FN Site 207", ProdRank.C, RevRank.C, "B", None, ["Cimmerian Cinnabar", "Foucaultium", "Infernium", "White Cometite"], ["fn202", "fn206"]),
+            ("fn208", "FN Site 208", ProdRank.B, RevRank.D, "B", None, ["Foucaultium"], ["fn202"]),
+            ("fn209", "FN Site 209", ProdRank.C, RevRank.F, "B", None, None, ["fn205"]),
+            ("fn210", "FN Site 210", ProdRank.B, RevRank.D, "B", None, None, ["fn211"]),
+            ("fn211", "FN Site 211", ProdRank.A, RevRank.D, "B", None, None, ["fn204","fn210"]),
+            ("fn212", "FN Site 212", ProdRank.B, RevRank.E, "B", None, ["Aurorite", "Enduron Lead", "White Cometite"], ["fn204", "fn216"]),
+            ("fn213", "FN Site 213", ProdRank.C, RevRank.S, "B", ["Sentinel's Nest"], None, ["fn206"]),
+            ("fn214", "FN Site 214", ProdRank.C, RevRank.D, "B", ["Millstone Ridge", "Skygazer's Atrium"], None, ["fn215"]),
+            ("fn215", "FN Site 215", ProdRank.C, RevRank.D, "B", None, ["Aurorite", "Enduron Lead", "Everfreeze Ore", "Foucaultium"], ["fn214", "fn218"]),
+            ("fn216", "FN Site 216", ProdRank.C, RevRank.A, "A", ["Cascade Isle"], None, ["fn212", "fn218", "fn225"]),
+            ("fn217", "FN Site 217", ProdRank.C, RevRank.C, "B", None, ["Aurorite", "Cimmerian Cinnabar", "Infernium"], ["fn222"]),
+            ("fn218", "FN Site 218", ProdRank.C, RevRank.E, "B", None, ["Aurorite", "Enduron Lead", "White Cometite"], ["fn215", "fn216", "fn224"]),
+            ("fn219", "FN Site 219", ProdRank.C, RevRank.E, "B", None, ["Enduron Lead", "White Cometite"], ["fn220"]),
+            ("fn220", "FN Site 220", ProdRank.C, RevRank.C, "A", ["Orochi's Belly"], ["Everfreeze Ore", "Infernium"], ["fn219", "fn221", "fn225"]),
+            ("fn221", "FN Site 221", ProdRank.C, RevRank.E, "B", ["Ensanguined Font", "Yagami's Vista"], None, ["fn220", "fn222"]),
+            ("fn222", "FN Site 222", ProdRank.C, RevRank.D, "B", ["Whale's Weeper"], None, ["fn103", "fn217", "fn221"]),
+            ("fn223", "FN Site 223", ProdRank.C, RevRank.F, "B", ["Idyll Beach"], None, ["fn224"]),
+            ("fn224", "FN Site 224", ProdRank.C, RevRank.A, "B", None, None, ["fn218", "fn223"]),
+            ("fn225", "FN Site 225", ProdRank.C, RevRank.A, "B", ["Decapotamon Vista"], None, ["fn216", "fn220"]),
         ],
         "Oblivia": [
             # Need to do Oblivia nodes (FN Site 3xx)

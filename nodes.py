@@ -105,6 +105,7 @@ class ProbeSlot:
         miranium = 0
         credits = 0
         storage = 0
+        precious_resources = []
 
 
         match self.installed_probe.probe_type:
@@ -112,7 +113,7 @@ class ProbeSlot:
             case ProbeType.BASIC:
                 miranium = self.node.prod_value * 0.50
                 credits = self.node.rev_value * 0.50
-                return miranium, credits, storage
+                return miranium, credits, storage, precious_resources
 
             case ProbeType.MINING:
                 if self.installed_probe.gen <= 0:
@@ -128,7 +129,11 @@ class ProbeSlot:
 
                 miranium = self.node.prod_value * gen_multiplier
                 credits = self.node.rev_value * 0.30
-                return miranium, credits, storage
+
+                if self.node.prec_resources:
+                    precious_resources = list(self.node.prec_resources)
+
+                return miranium, credits, storage, precious_resources
 
             case ProbeType.RESEARCH:
                 if self.intalled_probe.gen <= 1:
@@ -144,7 +149,7 @@ class ProbeSlot:
                 if self.node.sightseeing:
                     credits += len(self.node.sightseeing) * (500 * (self.installed_probe.gen + 3))
 
-                return miranium, credits, storage
+                return miranium, credits, storage, precious_resources
 
             case ProbeType.BOOSTER:
                 miranium = self.node.prod_value * 0.10
@@ -166,25 +171,25 @@ class ProbeSlot:
                                 credits += adj_credits * 1.0
                                 storage += adj_storage * 1.0
 
-                return miranium, credits, storage
+                return miranium, credits, storage, precious_resources
 
             case ProbeType.DUPLICATOR:
                 # Needs additional logic for copying the attributes of the surrounding nodes
-                return miranium, credits, storage
+                return miranium, credits, storage, precious_resources
 
             case ProbeType.STORAGE:
                 miranium = self.node.prod_value * 0.10
                 credits = self.node.rev_value * 0.10
                 storage = 3000
-                return miranium, credits, storage
+                return miranium, credits, storage, precious_resources
 
             case ProbeType.COMBAT:
                 miranium = self.node.prod_value * 0.10
                 credits = self.node.rev_value * 0.10
-                return miranium, credits, storage
+                return miranium, credits, storage, precious_resources
                 
             case __:
-                return miranium, credits, storage
+                return miranium, credits, storage, precious_resources
 
 
         
