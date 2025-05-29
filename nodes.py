@@ -32,6 +32,8 @@ class Node:
 
         self.connections = []       # List of Connection objects, not nodes
 
+        self.probe_slot = None      # The ProbeSlot that a Node is linked to
+
     def get_adjacent_nodes(self):
         # Return a list of node objects that are connected to self
         adjacent = []
@@ -88,6 +90,7 @@ class ProbeSlot:
         self.node = node
         self.installed_probe = Probe(ProbeType.BASIC)     # Initializes with a basic probe in each slot to reflect in-game behavior of FrontierNav
         ProbeSlot.node_to_slot[node] = self               # Adds the ProbeSlot node to a list of Nodes with a ProbeSlot
+        node.probe_slot = self                            # Tells the Node which ProbeSlot it's linked to
 
     def __repr__(self):
         return f"ProbeSlot(node={self.node}, probe={self.installed_probe})"
@@ -101,12 +104,25 @@ class ProbeSlot:
     def uninstall_probe(self):
         self.installed_probe = None     # Used to block off probes that have not been unlocked yet
 
+    def get_adjacent_probes(self):
+        # Return a list of Probe objects that are installed in adjacent slots
+        adjacent_probes = []
+        adjacent_nodes = self.node.get_adjacent_nodes()
+
+        for adj_node in adjacent_nodes:
+            adj_slot = adj_node.probe_slot
+
+            if adj_slot.installed_probe:
+                adjacent_probes.append(adj_slot.installed_probe)
+
+        return adjacent_probes
+    
+
     def calculate_output(self):
         miranium = 0
         credits = 0
         storage = 0
         precious_resources = []
-
 
         match self.installed_probe.probe_type:
 
@@ -136,7 +152,7 @@ class ProbeSlot:
                 return miranium, credits, storage, precious_resources
 
             case ProbeType.RESEARCH:
-                if self.intalled_probe.gen <= 1:
+                if self.installed_probe.gen <= 1:
                     gen_multiplier = 1.5
                 elif self.installed_probe.gen <= 6:
                     gen_multiplier = 0.5 * (self.installed_probe.gen + 3)
@@ -161,7 +177,7 @@ class ProbeSlot:
                     if adj_node in ProbeSlot.node_to_slot:
                         adj_slot = ProbeSlot.node_to_slot[adj_node]
                         if adj_slot.installed_probe.probe_type != ProbeType.BOOSTER:
-                            adj_miranium, adj_credits, adj_storage = adj_slot.calculate_output()
+                            adj_miranium, adj_credits, adj_storage, adj_precious = adj_slot.calculate_output()
                             if self.installed_probe.gen == 1:
                                 miranium += adj_miranium * 0.5
                                 credits += adj_credits * 0.5
@@ -174,7 +190,24 @@ class ProbeSlot:
                 return miranium, credits, storage, precious_resources
 
             case ProbeType.DUPLICATOR:
-                # Needs additional logic for copying the attributes of the surrounding nodes
+                adjacent_probes = self.get_adjacent_probes()
+
+                for adj_probe in adjacent_probes:
+                    if adj_probe.probe_type != ProbeType.DUPLICATOR:
+                        original_probe = self.installed_probe
+                        self.installed_probe = adj_probe
+
+                        duped_output = self.calculate_output()
+
+                        miranium += duped_output[0]
+                        credits += duped_output[1]
+                        storage += duped_output[2]
+
+                        if duped_output[3]:
+                            precious_resources.extend(duped_output[3])
+
+                        self.installed_probe = original_probe
+
                 return miranium, credits, storage, precious_resources
 
             case ProbeType.STORAGE:
