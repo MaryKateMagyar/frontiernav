@@ -199,12 +199,12 @@ class ProbeSlot:
 
                         duped_output = self.calculate_output()
 
-                        miranium += duped_output[0]
-                        credits += duped_output[1]
-                        storage += duped_output[2]
+                        miranium += duped_output[0] # Using the adjacent probe, adds the miranium produced to the node's total output
+                        credits += duped_output[1]  # Using the adjacent probe, adds the credits produced to the node's total output
+                        storage += duped_output[2]  # Using the adjacent probe, adds the storage alloted to the node's total output
 
-                        if duped_output[3]:
-                            precious_resources.extend(duped_output[3])
+                        if (adj_probe.probe_type == ProbeType.MINING and duped_output[3]) and len(precious_resources) == 0:   # If using the adjacent probe has a chance to produce any precious resources, adds them to the list of the node's output
+                            precious_resources = duped_output[3]
 
                         self.installed_probe = original_probe
 
