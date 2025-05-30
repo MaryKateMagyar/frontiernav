@@ -82,7 +82,27 @@ def load_game_data():
             ("fn322", "FN Site 322", ProdRank.A, RevRank.A, "B", None, None, ["fn321"])
         ],
         "Sylvalum": [
-            # Need to do Sylvalum nodes (FN Site 4xx)
+            # id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources, [connected_node_ids]
+            ("fn401", "FN Site 401", ProdRank.C, RevRank.B, "B", None, ["Marine Rutile", "Parhelion Platinum"], ["fn402", "fn404"]),
+            ("fn402", "FN Site 402", ProdRank.A, RevRank.B, "B", None, None, ["fn401", "fn408"]),
+            ("fn403", "FN Site 403", ProdRank.A, RevRank.C, "S", None, None, ["fn405"]),
+            ("fn404", "FN Site 404", ProdRank.B, RevRank.S, "S", ["Abyss Reservoir"], None, ["fn401", "fn407"]),
+            ("fn405", "FN Site 405", ProdRank.A, RevRank.E, "A", None, ["Arc Sand Ore"], ["fn403", "fn408", "fn409"]),
+            ("fn406", "FN Site 406", ProdRank.C, RevRank.B, "B", None, None, ["fn408"]),
+            ("fn407", "FN Site 407", ProdRank.A, RevRank.B, "B", None, None, ["fn404", "fn412"]),
+            ("fn408", "FN Site 408", ProdRank.B, RevRank.D, "B", ["Sandsprint Cavity"], ["Arc Sand Ore", "Aurorite", "Everfreeze Ore"], ["fn402", "fn405", "fn406", "fn413"]),
+            ("fn409", "FN Site 409", ProdRank.B, RevRank.S, "B", None, None, ["fn113", "fn405", "fn411"]),
+            ("fn410", "FN Site 410", ProdRank.C, RevRank.S, "B", ["Arc Rock"], None, ["fn412"]),
+            ("fn411", "FN Site 411", ProdRank.A, RevRank.A, "S", None, None, ["fn409", "fn414"]),
+            ("fn412", "FN Site 412", ProdRank.A, RevRank.B, "A", None, None, ["fn407", "fn410", "fn415"]),
+            ("fn413", "FN Site 413", ProdRank.C, RevRank.A, "B", ["Xanadu Overlook"], None, ["fn408", "fn416"]),
+            ("fn414", "FN Site 414", ProdRank.C, RevRank.B, "B", ["Noctilucent Sphere Interior", "Quay Hollows"], ["Marine Rutile", "Perhelion Platinum"], ["fn411"]),
+            ("fn415", "FN Site 415", ProdRank.C, RevRank.S, "B", None, None, ["fn412", "fn502"]),
+            ("fn416", "FN Site 416", ProdRank.C, RevRank.B, "B", None, None, ["fn413", "fn418", "fn419"]),
+            ("fn417", "FN Site 417", ProdRank.B, RevRank.D, "B", None, ["Boiled-Egg Ore", "Everfreeze Ore"], ["fn419"]),
+            ("fn418", "FN Site 418", ProdRank.C, RevRank.C, "B", None, ["Arc Sand Ore", "Boiled-Egg Ore", "Everfreeze Ore", "Marine Rutile", "Parhelion Platinum"], ["fn416"]),
+            ("fn419", "FN Site 419", ProdRank.C, RevRank.S, "S", ["Behemoth's Shadows"], None, ["fn416", "fn417", "fn420"]),
+            ("fn420", "FN Site 420", ProdRank.B, RevRank.C, "B", None, ["Everfreeze Ore"], ["fn419"]),
         ],
         "Cauldros": [
             # Need to do Cauldros nodes (FN Site 5xx)
