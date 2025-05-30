@@ -73,6 +73,8 @@ class ProbeType(Enum):
     DUPLICATOR = "Duplicator Probe"
     STORAGE = "Storage Probe"
     COMBAT = "Combat Probe"
+    LOCKED = "Node not yet unlocked"
+    # Need to adjust logic to account for Locked probes/nodes
 
 class Probe:
     def __init__(self, probe_type, gen=None, name=None):
@@ -101,8 +103,8 @@ class ProbeSlot:
     def install_probe(self, probe):
         self.installed_probe = probe
 
-    def uninstall_probe(self):
-        self.installed_probe = None     # Used to block off probes that have not been unlocked yet
+    def lock_probe(self):
+        self.installed_probe = Probe(ProbeType.LOCKED)     # Used to block off probes that have not been unlocked yet
 
     def get_adjacent_probes(self):
         # Return a list of Probe objects that are installed in adjacent slots

@@ -26,7 +26,7 @@ def load_game_data():
             ("fn118", "FN Site 118", ProdRank.C, RevRank.E, "B", None, ["Aurorite", "Dawnstone", "White Cometite"], ["fn117", "fn121"]),
             ("fn119", "FN Site 119", ProdRank.C, RevRank.E, "B", None, None, ["fn120"]),
             ("fn120", "FN Site 120", ProdRank.B, RevRank.B, "B", None, None, ["fn117", "fn119"]),
-            ("fn121", "FN Site 121", ProdRank.A, RevRank.E, "B", None, None, ["fn118", "fn301"]),
+            ("fn121", "FN Site 121", ProdRank.A, RevRank.E, "B", None, None, ["fn118", "fn301"])
         ],
         "Noctilum": [
             # id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources, [connected_node_ids]
@@ -54,10 +54,32 @@ def load_game_data():
             ("fn222", "FN Site 222", ProdRank.C, RevRank.D, "B", ["Whale's Weeper"], None, ["fn103", "fn217", "fn221"]),
             ("fn223", "FN Site 223", ProdRank.C, RevRank.F, "B", ["Idyll Beach"], None, ["fn224"]),
             ("fn224", "FN Site 224", ProdRank.C, RevRank.A, "B", None, None, ["fn218", "fn223"]),
-            ("fn225", "FN Site 225", ProdRank.C, RevRank.A, "B", ["Decapotamon Vista"], None, ["fn216", "fn220"]),
+            ("fn225", "FN Site 225", ProdRank.C, RevRank.A, "B", ["Decapotamon Vista"], None, ["fn216", "fn220"])
         ],
         "Oblivia": [
-            # Need to do Oblivia nodes (FN Site 3xx)
+            # id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources, [connected_node_ids]
+            ("fn301", "FN Site 301", ProdRank.B, RevRank.D, "B", None, ["Arc Sand Ore", "Infernium", "Lionbone Bort"], ["fn121", "fn302", "fn303"]),
+            ("fn302", "FN Site 302", ProdRank.C, RevRank.E, "B", None, None, ["fn301"]),
+            ("fn303", "FN Site 303", ProdRank.C, RevRank.E, "B", None, ["Aurorite", "White Cometite"], ["fn301", "fn306"]),
+            ("fn304", "FN Site 304", ProdRank.B, RevRank.A, "S", None, None, ["fn305", "fn306", "fn309"]),
+            ("fn305", "FN Site 305", ProdRank.C, RevRank.E, "B", None, ["Arc Sand Ore", "Aurorite", "Enduron Lead"], ["fn304", "fn308"]),
+            ("fn306", "FN Site 306", ProdRank.C, RevRank.D, "B", ["Cryptic Sign"], None, ["fn303", "fn304", "fn307"]),
+            ("fn307", "FN Site 307", ProdRank.C, RevRank.B, "B", None, ["Arc Sand Ore", "Enduron Lead", "Infernium", "White Cometite"], ["fn306", "fn313"]),
+            ("fn308", "FN Site 308", ProdRank.B, RevRank.C, "A", None, ["Ouroboros Crystal"], ["fn305"]),
+            ("fn309", "FN Site 309", ProdRank.C, RevRank.C, "B", None, ["Enduron Lead", "Ouroboros Crystal"], ["fn304", "fn311"]),
+            ("fn310", "FN Site 310", ProdRank.C, RevRank.A, "B", None, None, ["fn311"]),
+            ("fn311", "FN Site 311", ProdRank.C, RevRank.B, "B", None, None, ["fn309", "fn310"]),
+            ("fn312", "FN Site 312", ProdRank.C, RevRank.D, "B", None, ["Boiled-Egg Ore", "Infernium", "Lionbone Bort"], ["fn313", "fn315"]),
+            ("fn313", "FN Site 313", ProdRank.C, RevRank.E, "A", ["Azure Lagoon", "Crater Oasis"], None, ["fn307", "fn312", "fn314"]),
+            ("fn314", "FN Site 314", ProdRank.C, RevRank.B, "S", None, None, ["fn313"]),
+            ("fn315", "FN Site 315", ProdRank.A, RevRank.S, "B", ["Kintrees", "Mount Edge Peak"], None, ["fn312", "fn316", "fn318", "fn321"]),
+            ("fn316", "FN Site 316", ProdRank.C, RevRank.D, "B", None, None, ["fn315"]),
+            ("fn317", "FN Site 317", ProdRank.C, RevRank.A, "B", ["Beachside Trove"], None, ["fn318", "fn319"]),
+            ("fn318", "FN Site 318", ProdRank.C, RevRank.B, "B", ["Atop the Giant Ring", "Primeval Meadow"], ["Boiled-Egg Ore", "Lionbone Bort", "White Cometite"], ["fn315", "fn317"]),
+            ("fn319", "FN Site 319", ProdRank.C, RevRank.D, "B", ["Great Washington Isle"], ["Boiled-Egg Ore", "Infernium"], ["fn317"]),
+            ("fn320", "FN Site 320", ProdRank.C, RevRank.B, "B", None, ["Aurorite", "Ouroboros Crystal"], ["fn321"]),
+            ("fn321", "FN Site 321", ProdRank.A, RevRank.D, "A", None, None, ["fn315", "fn320", "fn322"]),
+            ("fn322", "FN Site 322", ProdRank.A, RevRank.A, "B", None, None, ["fn321"])
         ],
         "Sylvalum": [
             # Need to do Sylvalum nodes (FN Site 4xx)
