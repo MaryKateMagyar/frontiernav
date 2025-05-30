@@ -136,7 +136,8 @@ def load_game_data():
         "booster": 2, 
         "duplicator": None, 
         "storage": None, 
-        "combat": None
+        "combat": None,
+        "locked": None
     }
 
     # Basic, duplicator, storage, and combat nodes only have a single version each,
@@ -154,9 +155,14 @@ def load_game_data():
             continue
 
         if max_gen is None:
+            if probe_type != "locked":
+                probe_name_new = probe_name + " Probe"
+            else:
+                probe_name_new = "Probe Slot Locked"
+
             # Use key 0 for probes with no generations
-            probe_name_new = probe_name + " Probe"
             probes[probe_type] = {0: Probe(enum_type, None, probe_name_new)}
+            
         else:
             for gen in range(1, max_gen + 1):
                 probe_name_new = probe_name + f" G{gen} Probe"
