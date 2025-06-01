@@ -3,9 +3,10 @@ from nodes import Node, ProdRank, RevRank, ProbeSlot, Probe, ProbeType, Connecti
 
 def load_game_data():
     # In-game data for each node
+    # Later will need location data for the GUI
     node_data = {
         "Primordia": [
-            # id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources, [connected_node_ids]
+            # id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources, [connected_node_ids] 
             ("fn101", "FN Site 101", ProdRank.C, RevRank.S, "S", ["Stonelattice Cavern"], None, ["fn105"]),
             ("fn102", "FN Site 102", ProdRank.C, RevRank.F, "B", None, None, ["fn104"]),
             ("fn103", "FN Site 103", ProdRank.C, RevRank.E, "A", ["Wonderment Bluff"], None, ["fn105", "fn106", "fn222"]),
@@ -162,7 +163,7 @@ def load_game_data():
 
             # Use key 0 for probes with no generations
             probes[probe_type] = {0: Probe(enum_type, None, probe_name_new)}
-            
+
         else:
             for gen in range(1, max_gen + 1):
                 probe_name_new = probe_name + f" G{gen} Probe"
