@@ -1,4 +1,3 @@
-from enum import Enum
 from nodes import Node, ProdRank, RevRank, ProbeSlot, Probe, ProbeType, Connection
 
 def load_game_data():
@@ -106,21 +105,47 @@ def load_game_data():
             ("fn420", "FN Site 420", ProdRank.B, RevRank.C, "B", None, ["Everfreeze Ore"], ["fn419"]),
         ],
         "Cauldros": [
-            # Need to do Cauldros nodes (FN Site 5xx)
+            # id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources, [connected_node_ids]
+            ("fn501", "FN Site 501", ProdRank.B, RevRank.F, "B", None, ["Arc Sand Ore"], ["fn502"]),
+            ("fn502", "FN Site 502", ProdRank.A, RevRank.C, "B", ["Infernal Ledges"], ["Bonjelium"], ["fn415", "fn501", "fn503"]),
+            ("fn503", "FN Site 503", ProdRank.C, RevRank.D, "B", ["M'gando Volcanic Crater", "White Phosphor Lake"], ["Enduron Lead"], ["fn502", "fn504"]),
+            ("fn504", "FN Site 504", ProdRank.C, RevRank.C, "B", None, ["Arc Sand Ore", "Bonjelium", "Enduron Lead", "Marine Rutile"], ["fn503", "fn508"]),
+            ("fn505", "FN Site 505", ProdRank.C, RevRank.B, "B", ["Beneath O'rrh Sim Keep", "Ganglion Antropolis"], None, ["fn506", "fn509"]),
+            ("fn506", "FN Site 506", ProdRank.C, RevRank.B, "B", ["Forgotten Mining Frigate 1"], ["Arc Sand Ore", "Bonjelium"], ["fn505"]),
+            ("fn507", "FN Site 507", ProdRank.C, RevRank.A, "B", ["Bandit's Refuge"], ["Bonjelium"], ["fn508"]),
+            ("fn508", "FN Site 508", ProdRank.A, RevRank.B, "S", ["O'rrh Sim Castle Ruins"], ["Enduron Lead", "Marine Rutile"], ["fn504", "fn507", "fn509", "fn511"]),
+            ("fn509", "FN Site 509", ProdRank.A, RevRank.A, "A", None, None, ["fn505", "fn508", "fn510", "fn513"]),
+            ("fn510", "FN Site 510", ProdRank.C, RevRank.B, "B", None, ["Bonjelium"], ["fn509"]),
+            ("fn511", "FN Site 511", ProdRank.A, RevRank.C, "A", None, ["Bonjelium"], ["fn508", "fn512", "fn514"]),
+            ("fn512", "FN Site 512", ProdRank.C, RevRank.A, "S", None, None, ["fn511"]),
+            ("fn513", "FN Site 513", ProdRank.C, RevRank.A, "B", ["M'gando Mineral Spring"], None, ["fn509", "fn516"]),
+            ("fn514", "FN Site 514", ProdRank.C, RevRank.A, "B", ["Kw'arah Cloister"], None, ["fn511", "fn515"]),
+            ("fn515", "FN Site 515", ProdRank.C, RevRank.B, "S", None, None, ["fn514"]),
+            ("fn516", "FN Site 516", ProdRank.B, RevRank.E, "B", None, None, ["fn513"]),
         ]
     }
 
     # Creates a nodes dictionary
     nodes = {}
+    all_node_ids = set()
     for region, region_nodes_data in node_data.items():
         nodes[region] = {}
-        for node_id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources in region_nodes_data:
+        for node_id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources, _ in region_nodes_data:
             nodes[region][node_id] = Node(name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources)
+            all_node_ids.add(node_id)
 
     # Creates connections between nodes which are connected in game for adjacent bonuses
-    connections = [
-        # Need to do all the connections between nodes
-    ]
+    connections = []
+    for region, region_nodes_data in node_data.items():
+        for node_info in region_nodes_data:
+            node_id = node_info[0]
+            connected_ids = node_info[7]
+
+            for connected_id in connected_ids:
+                if connected_id in all_node_ids:
+                    connections.append(Connection(node_id, connected_id))
+                else:
+                    print(f"Warning: Cannot create Connection between {node_id} and {connected_id} as {connected_id} node does not exist!")
 
     # Creates a probe slot for each node
     slots = {}
@@ -168,3 +193,11 @@ def load_game_data():
             for gen in range(1, max_gen + 1):
                 probe_name_new = probe_name + f" G{gen} Probe"
                 probes[probe_type][gen] = Probe(enum_type, gen, probe_name_new)
+
+
+    return {
+        "nodes": nodes,
+        "connections": connections,
+        "slots": slots,
+        "probes": probes
+    }
