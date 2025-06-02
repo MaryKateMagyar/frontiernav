@@ -136,6 +136,7 @@ def load_game_data():
 
     # Creates connections between nodes which are connected in game for adjacent bonuses
     connections = []
+    made_connections = set()
     for region, region_nodes_data in node_data.items():
         for node_info in region_nodes_data:
             node_id = node_info[0]
@@ -143,7 +144,24 @@ def load_game_data():
 
             for connected_id in connected_ids:
                 if connected_id in all_node_ids:
-                    connections.append(Connection(node_id, connected_id))
+                    if connected_id in nodes[region]:
+                        connected_region = region
+                    elif connected_id.startswith("fn1"):
+                        connected_region = "Primordia"
+                    elif connected_id.startswith("fn2"):
+                        connected_region = "Noctilum"
+                    elif connected_id.startswith("fn3"):
+                        connected_region = "Oblivia"
+                    elif connected_id.startswith("fn4"):
+                        connected_region = "Sylvalum"
+                    elif connected_id.startswith("fn5"):
+                        connected_region = "Cauldros"
+                    else:
+                        print(f"Warning: {connected_ids} is not in a valid region")
+
+                    if frozenset([node_id, connected_id]) not in made_connections:
+                        connections.append(Connection(nodes[region][node_id], nodes[connected_region][connected_id]))
+                        made_connections.add(frozenset([node_id, connected_id]))
                 else:
                     print(f"Warning: Cannot create Connection between {node_id} and {connected_id} as {connected_id} node does not exist!")
 
