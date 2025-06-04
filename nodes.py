@@ -57,6 +57,9 @@ class Connection:
         node1.connections.append(self)
         node2.connections.append(self)
 
+    def __repr__(self):
+        return f"Connection({self.node1.name}, {self.node2.name})"
+
     def get_other_node(self, node):
         if node == self.node1:
             return self.node2
@@ -90,7 +93,7 @@ class ProbeSlot:
 
     def __init__(self, node):
         self.node = node
-        self.installed_probe = Probe(ProbeType.BASIC)     # Initializes with a basic probe in each slot to reflect in-game behavior of FrontierNav
+        self.installed_probe = Probe(ProbeType.BASIC, None, "Basic Probe")     # Initializes with a basic probe in each slot to reflect in-game behavior of FrontierNav
         ProbeSlot.node_to_slot[node] = self               # Adds the ProbeSlot node to a list of Nodes with a ProbeSlot
         node.probe_slot = self                            # Tells the Node which ProbeSlot it's linked to
 
@@ -104,7 +107,7 @@ class ProbeSlot:
         self.installed_probe = probe
 
     def lock_probe(self):
-        self.installed_probe = Probe(ProbeType.LOCKED)     # Used to block off probes that have not been unlocked yet
+        self.installed_probe = Probe(ProbeType.LOCKED, None, "Probe Slot is Locked")     # Used to block off probes that have not been unlocked yet
 
     def get_adjacent_probes(self):
         # Return a list of Probe objects that are installed in adjacent slots
