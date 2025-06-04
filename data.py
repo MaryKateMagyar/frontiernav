@@ -241,12 +241,11 @@ def print_game_data(game_data):
     print("----------------- FrontierNav Data -----------------\n")
 
     for region in game_data["nodes"]:
-        print(f"\n>>> {region} <<<")
+        print(f">>> {region} <<<")
         for node_id in game_data["nodes"][region]:
             node = game_data["nodes"][region][node_id]
-            print(" ")
             print(f"{node.name}")
-            print(f"- Production Rank: {node.prod_letter}")
+            print(f"\n- Production Rank: {node.prod_letter}")
             print(f"- Revenue Rank: {node.rev_letter}")
             print(f"- Combat Rank: {node.combat_rank}")
             
@@ -283,5 +282,57 @@ def print_game_data(game_data):
                 connects_to += "0"
             print(connects_to)
             print(f"- Installed Probe: {node.probe_slot.installed_probe.name}")
+
+
+def save_game_data_to_file(game_data, file_name="current_frontiernav_game_data.txt"):
+    lines = []
+    lines.append("---- Xenoblade Chronicles X: Definitive Edition ----")
+    lines.append("----------------- FrontierNav Data -----------------\n")
+
+    for region in game_data["nodes"]:
+        lines.append(f"\n>>> {region} <<<")
+        for node_id in game_data["nodes"][region]:
+            node = game_data["nodes"][region][node_id]
+            lines.append(f"\n{node.name}")
+            lines.append(f"- Production Rank: {node.prod_letter}")
+            lines.append(f"- Revenue Rank: {node.rev_letter}")
+            lines.append(f"- Combat Rank: {node.combat_rank}")
+            
+            ssing_sites = "- Sightseeing Sites: "
+            if node.sightseeing:
+                ssing_sites += f"{len(node.sightseeing)}"
+                for i in range(len(node.sightseeing)):
+                    ssing_sites += f"\n     * {node.sightseeing[i]}"
+            else:
+                ssing_sites += "0"
+            lines.append(ssing_sites)
+
+            resources = "- Precious Resources: "
+            if node.prec_resources:
+                resources += f"{len(node.prec_resources)}"
+                for i in range(len(node.prec_resources)):
+                    resources += f"\n     * {node.prec_resources[i]}"
+            else:
+                resources += "0"
+            lines.append(resources)
+            
+            connects_to = "- Connected To: "
+            if node.connections:
+                connects_to += f"{len(node.connections)}"
+                for connection in node.connections:
+                    connection = repr(connection)
+                    links = connection.removeprefix("Connection(FN Site ").removesuffix(")")
+                    links = links.split(", FN Site")
+                    for link in links:
+                        link = link.strip(" ")
+                        if link != node.name.removeprefix("FN Site "):
+                            connects_to += f"\n     * {link}"
+            else:
+                connects_to += "0"
+            lines.append(connects_to)
+            lines.append(f"- Installed Probe: {node.probe_slot.installed_probe.name}")
+    
+    with open(file_name, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
 
             
