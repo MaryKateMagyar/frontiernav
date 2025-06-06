@@ -12,10 +12,11 @@ class ProbeType(Enum):
     # Need to adjust logic to account for Locked probes/nodes
 
 class Probe:
-    def __init__(self, probe_type, gen=None, name=None):
+    def __init__(self, probe_type, gen=None, name=None, cost=0):
         self.probe_type = probe_type    # The type of probe this instance contains, which is a member of the ProbeType enum
         self.gen = gen                  # The generation of the probe, used for calculations (ex. 1 = G1, 2 = G2, 3 = G3, etc)
         self.name = name                # The name of the probe as a string
+        self.cost = cost                # The cost to install the probe
         self.boosted = 0
 
     def __repr__(self):
@@ -61,7 +62,7 @@ class ProbeSlot:
         miranium, credits, storage, prec_resources = self._calculate_base_output()
         miranium, credits, storage = self._apply_booster_effect(miranium, credits, storage)
         miranium, credits, storage = self._apply_link_multiplier(miranium, credits, storage)
-        return miranium, credits, storage, prec_resources
+        return int(miranium), int(credits), int(storage), prec_resources
 
     
     def _calculate_base_output(self):

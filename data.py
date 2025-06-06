@@ -3,7 +3,7 @@ from probes import ProbeSlot, Probe, ProbeType
 
 # In-game data for each node
 # Later will need location data for the GUI
-node_data = {
+NODE_DATA = {
     "Primordia": [
         # id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources, [connected_node_ids] 
         ("fn101", "FN Site 101", ProdRank.C, RevRank.S, "S", ["Stonelattice Cavern"], None, ["fn105"]),
@@ -125,7 +125,7 @@ node_data = {
     ]
 }
 
-test_data = {
+TEST_DATA = {
     "Primordia": [
         # id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources, [connected_node_ids] 
         ("fn101", "FN Site 101", ProdRank.C, RevRank.S, "S", ["Stonelattice Cavern"], None, ["fn103"]),
@@ -141,100 +141,51 @@ test_data = {
     ]
 }
 
-def load_game_data(node_data):
-    # Creates a nodes dictionary
-    nodes = {}
-    all_node_ids = set()
-    for region, region_nodes_data in node_data.items():
-        nodes[region] = {}
-        for node_id, name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources, _ in region_nodes_data:
-            nodes[region][node_id] = Node(name, prod_rank, rev_rank, combat_rank, sightseeing, prec_resources)
-            all_node_ids.add(node_id)
+PROBE_MAX_GEN = {
+    "basic": None,
+    "mining": 10, 
+    "research": 6, 
+    "booster": 2, 
+    "duplicator": None, 
+    "storage": None, 
+    "combat": None,
+    "locked": None
+}
 
-    # Creates connections between nodes which are connected in game for adjacent bonuses
-    connections = []
-    made_connections = set()
-    for region, region_nodes_data in node_data.items():
-        for node_info in region_nodes_data:
-            node_id = node_info[0]
-            connected_ids = node_info[7]
+# Basic, duplicator, storage, and combat nodes only have a single version each,
+# meaning they essentially have no generations that will be used for calculations
 
-            for connected_id in connected_ids:
-                if connected_id in all_node_ids:
-                    if connected_id in nodes[region]:
-                        connected_region = region
-                    elif connected_id.startswith("fn1"):
-                        connected_region = "Primordia"
-                    elif connected_id.startswith("fn2"):
-                        connected_region = "Noctilum"
-                    elif connected_id.startswith("fn3"):
-                        connected_region = "Oblivia"
-                    elif connected_id.startswith("fn4"):
-                        connected_region = "Sylvalum"
-                    elif connected_id.startswith("fn5"):
-                        connected_region = "Cauldros"
-                    else:
-                        print(f"Warning: {connected_ids} is not in a valid region")
+PROBE_COSTS = {
+    "basic": {0: 0},
+    "mining": {
+        1: 1000,
+        2: 2000,
+        3: 3000,
+        4: 5000,
+        5: 7000,
+        6: 10000,
+        7: 15000,
+        8: 20000,
+        9: 30000,
+        10: 50000
+    },
+    "research": {
+        1: 2000,
+        2: 5000,
+        3: 9000,
+        4: 12000,
+        5: 20000,
+        6: 35000
+    },
+    "booster": {
+        1: 7000,
+        2: 13000
+    },
+    "duplicator": {0: 6000},
+    "storage": {0: 5000},
+    "combat": {0: 0},
+    "locked": {0: 0}
+}
 
-                    if frozenset([node_id, connected_id]) not in made_connections:
-                        connections.append(Connection(nodes[region][node_id], nodes[connected_region][connected_id]))
-                        made_connections.add(frozenset([node_id, connected_id]))
-                else:
-                    print(f"Warning: Cannot create Connection between {node_id} and {connected_id} as {connected_id} node does not exist!")
-
-    # Creates a probe slot for each node
-    slots = {}
-    for region, region_nodes in nodes.items():
-        slots[region] = {}
-        for node_id, node in region_nodes.items():
-            slots[region][node_id] = ProbeSlot(node)
-
-    # Creates all possible probes in the game
-    probe_types_and_gens = {
-        "basic": None,
-        "mining": 10, 
-        "research": 6, 
-        "booster": 2, 
-        "duplicator": None, 
-        "storage": None, 
-        "combat": None,
-        "locked": None
-    }
-
-    # Basic, duplicator, storage, and combat nodes only have a single version each,
-    # meaning they essentially have no generations that will be used for calculations
-
-    probes = {}
-    for probe_type, max_gen in probe_types_and_gens.items():
-        probes[probe_type] = {}
-        probe_name = f"{probe_type.capitalize()}"
-
-        try:
-            enum_type = getattr(ProbeType, probe_type.upper())
-        except AttributeError:
-            print(f"Warning: ProbeType.{probe_type.upper()} does not exist in the ProbeType enum!")
-            continue
-
-        if max_gen is None:
-            if probe_type != "locked":
-                probe_name_new = probe_name + " Probe"
-            else:
-                probe_name_new = "Probe Slot Locked"
-
-            # Use key 0 for probes with no generations
-            probes[probe_type] = {0: Probe(enum_type, None, probe_name_new)}
-
-        else:
-            for gen in range(1, max_gen + 1):
-                probe_name_new = probe_name + f" G{gen} Probe"
-                probes[probe_type][gen] = Probe(enum_type, gen, probe_name_new)
-
-
-    return {
-        "nodes": nodes,
-        "connections": connections,
-        "slots": slots,
-        "probes": probes
-    }
 
 
