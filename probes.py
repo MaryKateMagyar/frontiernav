@@ -58,17 +58,24 @@ class ProbeSlot:
     
 
     def calculate_output(self):
+        miranium, credits, storage, prec_resources = self._calculate_base_output()
+        miranium, credits, storage = self._apply_booster_effect(miranium, credits, storage)
+        miranium, credits, storage = self._apply_link_multiplier(miranium, credits, storage)
+        return miranium, credits, storage, prec_resources
+
+    
+    def _calculate_base_output(self):
         miranium = 0
         credits = 0
         storage = 0
         precious_resources = []
-
 
         match self.installed_probe.probe_type:
 
             case ProbeType.BASIC:
                 miranium = self.node.prod_rank.value[1] * 0.50
                 credits = self.node.rev_rank.value[1] * 0.50
+
 
             case ProbeType.MINING:
                 if self.installed_probe.gen <= 0:
@@ -104,7 +111,6 @@ class ProbeSlot:
                     credits = len(self.node.sightseeing) * (500 * (self.installed_probe.gen + 3))
 
 
-
             case ProbeType.BOOSTER:
                 miranium = self.node.prod_rank.value[1] * 0.10
                 credits = self.node.rev_rank.value[1] * 0.10
@@ -129,6 +135,7 @@ class ProbeSlot:
 
                         self.installed_probe = original_probe
 
+
             case ProbeType.STORAGE:
                 miranium = self.node.prod_rank.value[1] * 0.10
                 credits = self.node.rev_rank.value[1] * 0.10
@@ -140,10 +147,13 @@ class ProbeSlot:
 
             case ProbeType.LOCKED:
                 return 0, 0, 0, []
-                
+
             case __:
                 pass
 
+        return miranium, credits, storage, precious_resources
+
+    def _apply_booster_effect(self, miranium, credits, storage):
         # If any adjacent nodes are installed with Booster Probes
         # that bonus is calculated into the output here
         if self.installed_probe.probe_type != ProbeType.BOOSTER and \
@@ -171,28 +181,8 @@ class ProbeSlot:
                             
             self.installed_probe.boosted = 0
 
-        # If a probe is of a type that recieves a link multiplier from adjacent prodes of the same type and gen
-        # that bonus is used to calculate the final output here
-        links = self._calculate_links()
-        if links >= 8:
-            link_multiplier = 1.8
-        elif links >= 5:
-            link_multiplier = 1.5
-        elif links >= 3:
-            link_multiplier = 1.3
-        else:
-            link_multiplier = 1
-
-        match self.installed_probe.probe_type:
-            case ProbeType.MINING | ProbeType.RESEARCH | ProbeType.DUPLICATOR | ProbeType.STORAGE:
-                miranium = miranium * link_multiplier
-                credits = credits * link_multiplier
-                storage = storage * link_multiplier
-
-            case __:
-                pass
-
-        return miranium, credits, storage, precious_resources
+        return miranium, credits, storage
+    
     
     def _calculate_links(self):
         same = set()
@@ -217,7 +207,32 @@ class ProbeSlot:
                     for adj_node in adjacent_nodes:
                         if adj_node not in visited_nodes:
                             visited_nodes.add(adj_node)
-                            queue.append(adj_node)
-                            
+                            queue.append(adj_node)         
 
         return len(same)
+    
+    
+    def _apply_link_multiplier(self, miranium, credits, storage):
+         # If a probe is of a type that recieves a link multiplier from adjacent prodes of the same type and gen
+        # that bonus is used to calculate the final output here
+
+        match self.installed_probe.probe_type:
+            case ProbeType.MINING | ProbeType.RESEARCH | ProbeType.DUPLICATOR | ProbeType.STORAGE:
+                links = self._calculate_links()
+                if links >= 8:
+                    link_multiplier = 1.8
+                elif links >= 5:
+                    link_multiplier = 1.5
+                elif links >= 3:
+                    link_multiplier = 1.3
+                else:
+                    link_multiplier = 1
+
+                miranium = miranium * link_multiplier
+                credits = credits * link_multiplier
+                storage = storage * link_multiplier
+
+            case __:
+                pass
+
+        return miranium, credits, storage
