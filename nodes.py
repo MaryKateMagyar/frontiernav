@@ -106,6 +106,7 @@ class ProbeSlot:
 
     def install_probe(self, probe):
         self.installed_probe = probe
+        probe.boosted = 0
 
     def lock_probe(self):
         self.installed_probe = Probe(ProbeType.LOCKED, None, "Probe Slot is Locked")     # Used to block off probes that have not been unlocked yet
@@ -130,12 +131,12 @@ class ProbeSlot:
         storage = 0
         precious_resources = []
 
+
         match self.installed_probe.probe_type:
 
             case ProbeType.BASIC:
                 miranium = self.node.prod_value * 0.50
                 credits = self.node.rev_value * 0.50
-                #return miranium, credits, storage, precious_resources
 
             case ProbeType.MINING:
                 if self.installed_probe.gen <= 0:
@@ -150,12 +151,11 @@ class ProbeSlot:
                     gen_multiplier = 3.0
 
                 miranium = self.node.prod_value * gen_multiplier
-                credits = self.node.rev_value * 0.30
+                credits = self.node.rev_value * 0.30 
 
                 if self.node.prec_resources:
                     precious_resources = list(self.node.prec_resources)
 
-                #return miranium, credits, storage, precious_resources
 
             case ProbeType.RESEARCH:
                 if self.installed_probe.gen <= 1:
@@ -165,19 +165,18 @@ class ProbeSlot:
                 else:
                     gen_multiplier = 4.5
 
-                miranium = self.node.prod_value * 0.50
-                credits = self.node.rev_value * gen_multiplier
+                miranium = self.node.prod_value * 0.50 
+                credits += self.node.rev_value * gen_multiplier
 
                 if self.node.sightseeing:
-                    credits += len(self.node.sightseeing) * (500 * (self.installed_probe.gen + 3))
+                    credits = len(self.node.sightseeing) * (500 * (self.installed_probe.gen + 3))
 
-                #return miranium, credits, storage, precious_resources
+
 
             case ProbeType.BOOSTER:
                 miranium = self.node.prod_value * 0.10
                 credits = self.node.rev_value * 0.10
 
-                #return miranium, credits, storage, precious_resources
 
             case ProbeType.DUPLICATOR:
                 adjacent_probes = self.get_adjacent_probes()
@@ -198,23 +197,27 @@ class ProbeSlot:
 
                         self.installed_probe = original_probe
 
-                #return miranium, credits, storage, precious_resources
-
             case ProbeType.STORAGE:
                 miranium = self.node.prod_value * 0.10
                 credits = self.node.rev_value * 0.10
                 storage = 3000
-                #return miranium, credits, storage, precious_resources
 
             case ProbeType.COMBAT:
                 miranium = self.node.prod_value * 0.10
                 credits = self.node.rev_value * 0.10
-                #return miranium, credits, storage, precious_resources
+
+            case ProbeType.LOCKED:
+                return 0, 0, 0, []
                 
             case __:
                 pass
-                #return miranium, credits, storage, precious_resources
-        if self.installed_probe.probe_type != ProbeType.BOOSTER:
+
+        # If any adjacent nodes are installed with Booster Probes
+        # that bonus is calculated into the output here
+        if self.installed_probe.probe_type != ProbeType.BOOSTER and \
+            self.installed_probe.probe_type != ProbeType.BASIC and \
+            self.installed_probe.probe_type != ProbeType.COMBAT and \
+            self.installed_probe.probe_type != ProbeType.LOCKED:
             adjacent_nodes = self.node.get_adjacent_nodes()
 
             for adj_node in adjacent_nodes:
@@ -222,19 +225,71 @@ class ProbeSlot:
                     adj_slot = ProbeSlot.node_to_slot[adj_node]
                     if adj_slot.installed_probe.probe_type == ProbeType.BOOSTER:
 
-                        if self.installed_probe.boosted < adj_slot.installed_probe.gen:
-                            self.installed_probe.boosted = adj_slot.installed_probe.gen
+                        self.installed_probe.boosted = adj_slot.installed_probe.gen
 
                         if self.installed_probe.gen == 1:
                             miranium += miranium * 0.5
                             credits += credits * 0.5
                             storage += storage * 0.5
+                            
                         elif self.installed_probe.gen == 2:
                             miranium += miranium * 1.0
                             credits += credits * 1.0
                             storage += storage * 1.0
+                            
+            self.installed_probe.boosted = 0
+
+        # If a probe is of a type that recieves a link multiplier from adjacent prodes of the same type and gen
+        # that bonus is used to calculate the final output here
+        links = self._calculate_links()
+        if links >= 8:
+            link_multiplier = 1.8
+        elif links >= 5:
+            link_multiplier = 1.5
+        elif links >= 3:
+            link_multiplier = 1.3
+        else:
+            link_multiplier = 1
+
+        match self.installed_probe.probe_type:
+            case ProbeType.MINING | ProbeType.RESEARCH | ProbeType.DUPLICATOR | ProbeType.STORAGE:
+                miranium = miranium * link_multiplier
+                credits = credits * link_multiplier
+                storage = storage * link_multiplier
+
+            case __:
+                pass
 
         return miranium, credits, storage, precious_resources
+    
+    def _calculate_links(self):
+        same = set()
+        queue = [self.node]
+        visited_nodes = {self.node}
+
+        current_probe = self.installed_probe
+        if not current_probe or current_probe.probe_type is None or current_probe.gen is None:
+            return 0
+        
+        starting_probe_type = current_probe.probe_type
+        starting_probe_gen = current_probe.gen
+        
+        while queue:
+            current_node = queue.pop(0)
+
+            if current_node.installed_probe.probe_type == starting_probe_type and current_node.installed_probe.gen == starting_probe_gen:
+                same.add(current_node)
+
+                adjacent_nodes = current_node.get_adjacent_nodes()
+                if adjacent_nodes:
+                    for adj_node in adjacent_nodes:
+                        if adj_node not in visited_nodes:
+                            visited_nodes.add(adj_node)
+                            queue.append(adj_node)
+                            
+
+        return len(same)
+
 
 class FrontierNav:
     def __init__(self, game_data):
