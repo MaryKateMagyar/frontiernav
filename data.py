@@ -1,4 +1,5 @@
-from nodes import Node, ProdRank, RevRank, ProbeSlot, Probe, ProbeType, Connection
+from nodes import Node, ProdRank, RevRank, Connection
+from probes import ProbeSlot, Probe, ProbeType
 
 # In-game data for each node
 # Later will need location data for the GUI

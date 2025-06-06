@@ -67,8 +67,8 @@ class ProbeSlot:
         match self.installed_probe.probe_type:
 
             case ProbeType.BASIC:
-                miranium = self.node.prod_value * 0.50
-                credits = self.node.rev_value * 0.50
+                miranium = self.node.prod_rank.value[1] * 0.50
+                credits = self.node.rev_rank.value[1] * 0.50
 
             case ProbeType.MINING:
                 if self.installed_probe.gen <= 0:
@@ -82,8 +82,8 @@ class ProbeSlot:
                 else:
                     gen_multiplier = 3.0
 
-                miranium = self.node.prod_value * gen_multiplier
-                credits = self.node.rev_value * 0.30 
+                miranium = self.node.prod_rank.value[1] * gen_multiplier
+                credits = self.node.rev_rank.value[1] * 0.30 
 
                 if self.node.prec_resources:
                     precious_resources = list(self.node.prec_resources)
@@ -97,8 +97,8 @@ class ProbeSlot:
                 else:
                     gen_multiplier = 4.5
 
-                miranium = self.node.prod_value * 0.50 
-                credits += self.node.rev_value * gen_multiplier
+                miranium = self.node.prod_rank.value[1] * 0.50 
+                credits += self.node.rev_rank.value[1] * gen_multiplier
 
                 if self.node.sightseeing:
                     credits = len(self.node.sightseeing) * (500 * (self.installed_probe.gen + 3))
@@ -106,8 +106,8 @@ class ProbeSlot:
 
 
             case ProbeType.BOOSTER:
-                miranium = self.node.prod_value * 0.10
-                credits = self.node.rev_value * 0.10
+                miranium = self.node.prod_rank.value[1] * 0.10
+                credits = self.node.rev_rank.value[1] * 0.10
 
 
             case ProbeType.DUPLICATOR:
@@ -130,13 +130,13 @@ class ProbeSlot:
                         self.installed_probe = original_probe
 
             case ProbeType.STORAGE:
-                miranium = self.node.prod_value * 0.10
-                credits = self.node.rev_value * 0.10
+                miranium = self.node.prod_rank.value[1] * 0.10
+                credits = self.node.rev_rank.value[1] * 0.10
                 storage = 3000
 
             case ProbeType.COMBAT:
-                miranium = self.node.prod_value * 0.10
-                credits = self.node.rev_value * 0.10
+                miranium = self.node.prod_rank.value[1] * 0.10
+                credits = self.node.rev_rank.value[1] * 0.10
 
             case ProbeType.LOCKED:
                 return 0, 0, 0, []
@@ -209,7 +209,7 @@ class ProbeSlot:
         while queue:
             current_node = queue.pop(0)
 
-            if current_node.installed_probe.probe_type == starting_probe_type and current_node.installed_probe.gen == starting_probe_gen:
+            if current_node.probe_slot.installed_probe.probe_type == starting_probe_type and current_node.probe_slot.installed_probe.gen == starting_probe_gen:
                 same.add(current_node)
 
                 adjacent_nodes = current_node.get_adjacent_nodes()

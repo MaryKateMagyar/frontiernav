@@ -1,5 +1,5 @@
-from data import node_data, test_data, load_game_data, print_game_data, save_game_data_to_file
-from nodes import FrontierNav
+from data import node_data, test_data, load_game_data
+from frontiernav import FrontierNav
 
 if __name__ == "__main__":
     game_data = load_game_data(node_data)

@@ -41,8 +41,8 @@ class FrontierNav:
             for node_id in self.nodes[region]:
                 node = self.nodes[region][node_id]
                 print(f"{node.name}")
-                print(f"\n- Production Rank: {node.prod_rank[0]}")
-                print(f"- Revenue Rank: {node.rev_rank[0]}")
+                print(f"\n- Production Rank: {node.prod_rank.value[0]}")
+                print(f"- Revenue Rank: {node.rev_rank.value[0]}")
                 print(f"- Combat Rank: {node.combat_rank}")
                 
                 ssing_sites = "- Sightseeing Sites: "
@@ -91,8 +91,8 @@ class FrontierNav:
             for node_id in self.nodes[region]:
                 node = self.nodes[region][node_id]
                 lines.append(f"\n{node.name}")
-                lines.append(f"- Production Rank: {node.prod_rank[0]}")
-                lines.append(f"- Revenue Rank: {node.rev_rank[0]}")
+                lines.append(f"- Production Rank: {node.prod_rank.value[0]}")
+                lines.append(f"- Revenue Rank: {node.rev_rank.value[0]}")
                 lines.append(f"- Combat Rank: {node.combat_rank}")
                 
                 ssing_sites = "- Sightseeing Sites: "
