@@ -84,6 +84,7 @@ class Probe:
         self.probe_type = probe_type    # The type of probe this instance contains, which is a member of the ProbeType enum
         self.gen = gen                  # The generation of the probe, used for calculations (ex. 1 = G1, 2 = G2, 3 = G3, etc)
         self.name = name                # The name of the probe as a string
+        self.boosted = 0
 
     def __repr__(self):
         return f"Probe({self.probe_type}, {self.gen}, {self.name})"
@@ -134,7 +135,7 @@ class ProbeSlot:
             case ProbeType.BASIC:
                 miranium = self.node.prod_value * 0.50
                 credits = self.node.rev_value * 0.50
-                return miranium, credits, storage, precious_resources
+                #return miranium, credits, storage, precious_resources
 
             case ProbeType.MINING:
                 if self.installed_probe.gen <= 0:
@@ -154,7 +155,7 @@ class ProbeSlot:
                 if self.node.prec_resources:
                     precious_resources = list(self.node.prec_resources)
 
-                return miranium, credits, storage, precious_resources
+                #return miranium, credits, storage, precious_resources
 
             case ProbeType.RESEARCH:
                 if self.installed_probe.gen <= 1:
@@ -170,29 +171,13 @@ class ProbeSlot:
                 if self.node.sightseeing:
                     credits += len(self.node.sightseeing) * (500 * (self.installed_probe.gen + 3))
 
-                return miranium, credits, storage, precious_resources
+                #return miranium, credits, storage, precious_resources
 
             case ProbeType.BOOSTER:
                 miranium = self.node.prod_value * 0.10
                 credits = self.node.rev_value * 0.10
 
-                adjacent_nodes = self.node.get_adjacent_nodes()
-
-                for adj_node in adjacent_nodes:
-                    if adj_node in ProbeSlot.node_to_slot:
-                        adj_slot = ProbeSlot.node_to_slot[adj_node]
-                        if adj_slot.installed_probe.probe_type != ProbeType.BOOSTER:
-                            adj_miranium, adj_credits, adj_storage, adj_precious = adj_slot.calculate_output()
-                            if self.installed_probe.gen == 1:
-                                miranium += adj_miranium * 0.5
-                                credits += adj_credits * 0.5
-                                storage += adj_storage * 0.5
-                            elif self.installed_probe.gen == 2:
-                                miranium += adj_miranium * 1.0
-                                credits += adj_credits * 1.0
-                                storage += adj_storage * 1.0
-
-                return miranium, credits, storage, precious_resources
+                #return miranium, credits, storage, precious_resources
 
             case ProbeType.DUPLICATOR:
                 adjacent_probes = self.get_adjacent_probes()
@@ -213,21 +198,176 @@ class ProbeSlot:
 
                         self.installed_probe = original_probe
 
-                return miranium, credits, storage, precious_resources
+                #return miranium, credits, storage, precious_resources
 
             case ProbeType.STORAGE:
                 miranium = self.node.prod_value * 0.10
                 credits = self.node.rev_value * 0.10
                 storage = 3000
-                return miranium, credits, storage, precious_resources
+                #return miranium, credits, storage, precious_resources
 
             case ProbeType.COMBAT:
                 miranium = self.node.prod_value * 0.10
                 credits = self.node.rev_value * 0.10
-                return miranium, credits, storage, precious_resources
+                #return miranium, credits, storage, precious_resources
                 
             case __:
-                return miranium, credits, storage, precious_resources
+                pass
+                #return miranium, credits, storage, precious_resources
+        if self.installed_probe.probe_type != ProbeType.BOOSTER:
+            adjacent_nodes = self.node.get_adjacent_nodes()
+
+            for adj_node in adjacent_nodes:
+                if adj_node in ProbeSlot.node_to_slot:
+                    adj_slot = ProbeSlot.node_to_slot[adj_node]
+                    if adj_slot.installed_probe.probe_type == ProbeType.BOOSTER:
+
+                        if self.installed_probe.boosted < adj_slot.installed_probe.gen:
+                            self.installed_probe.boosted = adj_slot.installed_probe.gen
+
+                        if self.installed_probe.gen == 1:
+                            miranium += miranium * 0.5
+                            credits += credits * 0.5
+                            storage += storage * 0.5
+                        elif self.installed_probe.gen == 2:
+                            miranium += miranium * 1.0
+                            credits += credits * 1.0
+                            storage += storage * 1.0
+
+        return miranium, credits, storage, precious_resources
+
+class FrontierNav:
+    def __init__(self, game_data):
+        self.nodes = game_data["nodes"]
+        self.connections = game_data["connections"]
+        self.slots = game_data["slots"]
+        self.probes = game_data["probes"]
+
+        self.miranium = 0
+        self.credits = 0
+        self.storage = 6000
+        self.prec_resources = set()
+
+    def calculate_total(self, miranium=True, credits=True, storage=True, prec_resources=True):
+        for region in self.slots:
+            for node_id in self.slots[region]:
+                slot = self.slots[region][node_id]
+                current_slot_totals = slot.calculate_output()
+                if miranium:
+                    self.miranium += current_slot_totals[0]
+                if credits:
+                    self.credits += current_slot_totals[1]
+                if storage:
+                    self.storage += current_slot_totals[2]
+                if prec_resources:
+                    pc_output = current_slot_totals[3]
+                    for pc in pc_output:
+                        self.prec_resources.add(pc)
+        return {
+            "total miranium": self.miranium,
+            "total credits": self.credits,
+            "total storage": self.storage,
+            "possible resources": list(self.prec_resources)
+        }
+
+    def print_game_data(self):     
+        # Prints current data for FrontierNav in the terminal
+        print("---- Xenoblade Chronicles X: Definitive Edition ----")
+        print("----------------- FrontierNav Data -----------------\n")
+
+        for region in self.nodes:
+            print(f">>> {region} <<<")
+            for node_id in self.nodes[region]:
+                node = self.nodes[region][node_id]
+                print(f"{node.name}")
+                print(f"\n- Production Rank: {node.prod_letter}")
+                print(f"- Revenue Rank: {node.rev_letter}")
+                print(f"- Combat Rank: {node.combat_rank}")
+                
+                ssing_sites = "- Sightseeing Sites: "
+                if node.sightseeing:
+                    ssing_sites += f"{len(node.sightseeing)}"
+                    for i in range(len(node.sightseeing)):
+                        ssing_sites += f"\n     * {node.sightseeing[i]}"
+                else:
+                    ssing_sites += "0"
+                print(ssing_sites)
+
+                resources = "- Precious Resources: "
+                if node.prec_resources:
+                    resources += f"{len(node.prec_resources)}"
+                    for i in range(len(node.prec_resources)):
+                        resources += f"\n     * {node.prec_resources[i]}"
+                else:
+                    resources += "0"
+                print(resources)
+                
+                connects_to = "- Connected To: "
+                if node.connections:
+                    connects_to += f"{len(node.connections)}"
+                    for connection in node.connections:
+                        connection = repr(connection)
+                        links = connection.removeprefix("Connection(FN Site ").removesuffix(")")
+                        links = links.split(", FN Site")
+                        for link in links:
+                            link = link.strip(" ")
+                            if link != node.name.removeprefix("FN Site "):
+                                connects_to += f"\n     * {link}"
+                else:
+                    connects_to += "0"
+                print(connects_to)
+                print(f"- Installed Probe: {node.probe_slot.installed_probe.name}")
 
 
+    def save_game_data_to_file(self, file_name="current_frontiernav_game_data.txt"):
+        # Creates a .txt file with the current data for FrontierNav
+        lines = []
+        lines.append("---- Xenoblade Chronicles X: Definitive Edition ----")
+        lines.append("----------------- FrontierNav Data -----------------\n")
+
+        for region in self.nodes:
+            lines.append(f"\n>>> {region} <<<")
+            for node_id in self.nodes[region]:
+                node = self.nodes[region][node_id]
+                lines.append(f"\n{node.name}")
+                lines.append(f"- Production Rank: {node.prod_letter}")
+                lines.append(f"- Revenue Rank: {node.rev_letter}")
+                lines.append(f"- Combat Rank: {node.combat_rank}")
+                
+                ssing_sites = "- Sightseeing Sites: "
+                if node.sightseeing:
+                    ssing_sites += f"{len(node.sightseeing)}"
+                    for i in range(len(node.sightseeing)):
+                        ssing_sites += f"\n     * {node.sightseeing[i]}"
+                else:
+                    ssing_sites += "0"
+                lines.append(ssing_sites)
+
+                resources = "- Precious Resources: "
+                if node.prec_resources:
+                    resources += f"{len(node.prec_resources)}"
+                    for i in range(len(node.prec_resources)):
+                        resources += f"\n     * {node.prec_resources[i]}"
+                else:
+                    resources += "0"
+                lines.append(resources)
+                
+                connects_to = "- Connected To: "
+                if node.connections:
+                    connects_to += f"{len(node.connections)}"
+                    for connection in node.connections:
+                        connection = repr(connection)
+                        links = connection.removeprefix("Connection(FN Site ").removesuffix(")")
+                        links = links.split(", FN Site")
+                        for link in links:
+                            link = link.strip(" ")
+                            if link != node.name.removeprefix("FN Site "):
+                                connects_to += f"\n     * {link}"
+                else:
+                    connects_to += "0"
+                lines.append(connects_to)
+                lines.append(f"- Installed Probe: {node.probe_slot.installed_probe.name}")
+        
+        with open(file_name, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
         

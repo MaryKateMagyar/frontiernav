@@ -236,7 +236,8 @@ def load_game_data(node_data):
         "probes": probes
     }
 
-def print_game_data(game_data):
+def print_game_data(game_data):     
+    # Prints current data for FrontierNav in the terminal
     print("---- Xenoblade Chronicles X: Definitive Edition ----")
     print("----------------- FrontierNav Data -----------------\n")
 
@@ -285,6 +286,7 @@ def print_game_data(game_data):
 
 
 def save_game_data_to_file(game_data, file_name="current_frontiernav_game_data.txt"):
+    # Creates a .txt file with the current data for FrontierNav
     lines = []
     lines.append("---- Xenoblade Chronicles X: Definitive Edition ----")
     lines.append("----------------- FrontierNav Data -----------------\n")
@@ -335,4 +337,4 @@ def save_game_data_to_file(game_data, file_name="current_frontiernav_game_data.t
     with open(file_name, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
-            
+
