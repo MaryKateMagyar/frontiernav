@@ -19,6 +19,7 @@ class Probe:
         self.cost = cost                # The cost to install the probe
         self.boosted = 0
 
+
     def __repr__(self):
         return f"Probe({self.probe_type}, {self.gen}, {self.name})"
 
@@ -170,22 +171,47 @@ class ProbeSlot:
 
                         self.installed_probe.boosted = adj_slot.installed_probe.gen
 
-                        if self.installed_probe.gen == 1:
-                            miranium += miranium * 0.5
-                            credits += credits * 0.5
-                            storage += storage * 0.5
+                        if self.installed_probe.boosted == 1:
+                            if self.installed_probe.probe_type == ProbeType.MINING:
+                                miranium += miranium * 0.5
+                            elif self.installed_probe.probe_type == ProbeType.RESEARCH:
+                                credits += credits * 0.5
+                            elif self.installed_probe.probe_type == ProbeType.STORAGE:
+                                storage += storage * 0.5
+                            elif self.installed_probe.probe_type == ProbeType.DUPLICATOR:
+                                types = self._duplicator_copied_types()
+                                for type in types:
+                                    if type == ProbeType.MINING:
+                                        miranium += miranium * 0.5
+                                    elif type == ProbeType.RESEARCH:
+                                        credits += credits * 0.5
+                                    elif type == ProbeType.STORAGE:
+                                        storage += storage * 0.5
+
                             
-                        elif self.installed_probe.gen == 2:
-                            miranium += miranium * 1.0
-                            credits += credits * 1.0
-                            storage += storage * 1.0
+                        elif self.installed_probe.boosted == 2:
+                            if self.installed_probe.probe_type == ProbeType.MINING:
+                                miranium += miranium * 1.0
+                            elif self.installed_probe.probe_type == ProbeType.RESEARCH:
+                                credits += credits * 1.0
+                            elif self.installed_probe.probe_type == ProbeType.STORAGE:
+                                storage += storage * 1.0
+                            elif self.installed_probe.probe_type == ProbeType.DUPLICATOR:
+                                types = self._duplicator_copied_types
+                                for type in types:
+                                    if type == ProbeType.MINING:
+                                        miranium += miranium * 1.0
+                                    elif type == ProbeType.RESEARCH:
+                                        credits += credits * 1.0
+                                    elif type == ProbeType.STORAGE:
+                                        storage += storage * 1.0
                             
             self.installed_probe.boosted = 0
 
         return miranium, credits, storage
     
     
-    def _calculate_links(self):
+    def _calculate_links_multiplier(self):
         same = set()
         queue = [self.node]
         visited_nodes = {self.node}
@@ -210,30 +236,57 @@ class ProbeSlot:
                             visited_nodes.add(adj_node)
                             queue.append(adj_node)         
 
-        return len(same)
+        links = len(same)
+        if links >= 8:
+            return 1.8
+        elif links >= 5:
+            return 1.5
+        elif links >= 3:
+            return 1.3
+        else:
+            return 1
+
     
     
     def _apply_link_multiplier(self, miranium, credits, storage):
-         # If a probe is of a type that recieves a link multiplier from adjacent prodes of the same type and gen
+        # If a probe is of a type that recieves a link multiplier from adjacent prodes of the same type and gen
         # that bonus is used to calculate the final output here
 
         match self.installed_probe.probe_type:
             case ProbeType.MINING | ProbeType.RESEARCH | ProbeType.DUPLICATOR | ProbeType.STORAGE:
-                links = self._calculate_links()
-                if links >= 8:
-                    link_multiplier = 1.8
-                elif links >= 5:
-                    link_multiplier = 1.5
-                elif links >= 3:
-                    link_multiplier = 1.3
-                else:
-                    link_multiplier = 1
-
-                miranium = miranium * link_multiplier
-                credits = credits * link_multiplier
-                storage = storage * link_multiplier
+                link_multiplier = self._calculate_links_multiplier()
+                dupe_multiplier = self._duplicator_link_boost()
 
             case __:
                 pass
 
+        match self.installed_probe.probe_type:
+            case ProbeType.MINING:
+                miranium = miranium * link_multiplier * dupe_multiplier
+            case ProbeType.RESEARCH:
+                credits = credits * link_multiplier * dupe_multiplier
+            case ProbeType.STORAGE:
+                storage = storage * link_multiplier * dupe_multiplier
+            case ProbeType.DUPLICATOR:
+                pass
+
         return miranium, credits, storage
+    
+    def _duplicator_copied_types(self):
+        adjacent_probes = self.get_adjacent_probes()
+        copied_types = []
+        for adj_probe in adjacent_probes:
+            if adj_probe.probe_type != ProbeType.DUPLICATOR:
+                copied_types.append(adj_probe.probe_type)
+        return copied_types
+
+    def _duplicator_link_boost(self):
+        if self.installed_probe.probe_type != ProbeType.DUPLICATOR:
+            adjacent_nodes = self.node.get_adjacent_nodes()
+            dupe_link_boost = 1
+            for adj_node in adjacent_nodes:
+                if adj_node.probe_slot.installed_probe.probe_type == ProbeType.DUPLICATOR:
+                    boost = adj_node.probe_slot._calculate_links_multiplier()
+                    if boost > dupe_link_boost:
+                        dupe_link_boost = boost
+            return dupe_link_boost

@@ -5,11 +5,13 @@ if __name__ == "__main__":
     frontier_nav = FrontierNav(FrontierNav.load_game_data(NODE_DATA))
     probe1 = frontier_nav.probes["mining"][5]
     probe2 = frontier_nav.probes["booster"][1]
-    probe3 = frontier_nav.probes["storage"][0]
-    frontier_nav.nodes["Primordia"]["fn101"].probe_slot.install_probe(probe1)
-    frontier_nav.nodes["Primordia"]["fn108"].probe_slot.install_probe(probe1)
-    frontier_nav.nodes["Primordia"]["fn102"].probe_slot.install_probe(probe2)
-    frontier_nav.nodes["Primordia"]["fn103"].probe_slot.install_probe(probe3)
-    frontier_nav.nodes["Noctilum"]["fn225"].probe_slot.lock_probe()
+    probe3 = frontier_nav.probes["duplicator"][0]
+    frontier_nav.nodes["Primordia"]["fn102"].probe_slot.install_probe(probe1)
+    frontier_nav.nodes["Primordia"]["fn104"].probe_slot.install_probe(probe1)
+    frontier_nav.nodes["Primordia"]["fn106"].probe_slot.install_probe(probe1)
+    frontier_nav.nodes["Primordia"]["fn103"].probe_slot.install_probe(probe2)
+    frontier_nav.nodes["Primordia"]["fn101"].probe_slot.install_probe(probe3)
+    frontier_nav.nodes["Primordia"]["fn105"].probe_slot.install_probe(probe3)
+    frontier_nav.nodes["Primordia"]["fn109"].probe_slot.install_probe(probe3)
     print(frontier_nav.calculate_total())
     
