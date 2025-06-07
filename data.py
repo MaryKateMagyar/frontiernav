@@ -142,6 +142,7 @@ TEST_DATA = {
 }
 
 PROBE_MAX_GEN = {
+    "locked": None,
     "basic": None,
     "mining": 10, 
     "research": 6, 
@@ -149,13 +150,13 @@ PROBE_MAX_GEN = {
     "duplicator": None, 
     "storage": None, 
     "combat": None,
-    "locked": None
 }
 
 # Basic, duplicator, storage, and combat nodes only have a single version each,
 # meaning they essentially have no generations that will be used for calculations
 
 PROBE_COSTS = {
+    "locked": {0: 0},
     "basic": {0: 0},
     "mining": {
         1: 1000,
@@ -183,8 +184,7 @@ PROBE_COSTS = {
     },
     "duplicator": {0: 6000},
     "storage": {0: 5000},
-    "combat": {0: 0},
-    "locked": {0: 0}
+    "combat": {0: 0}
 }
 
 
