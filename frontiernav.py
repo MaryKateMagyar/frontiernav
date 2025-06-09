@@ -16,6 +16,12 @@ class FrontierNav:
         self.cost = 0
 
     def calculate_total(self):
+        self.miranium = 0
+        self.credits = 0
+        self.storage = 6000
+        self.prec_resources = set()
+        self.cost = 0
+
         for region in self.slots:
             for node_id in self.slots[region]:
                 slot = self.slots[region][node_id]

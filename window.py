@@ -34,11 +34,16 @@ class GUI:
         return probe_list
 
     def setup_ui(self):
-        notebook = ttk.Notebook(self.__root)
-        notebook.pack(fill="both", expand=True, padx=10, pady=10)
+        main_container = ttk.Frame(self.__root)
+        main_container.pack(fill="both", expand=True, padx=10, pady=10)
+
+        notebook = ttk.Notebook(main_container)
+        notebook.pack(side="left", fill="both", expand=True, padx=(0, 10))
 
         for region in self.frontier_nav.nodes.keys():
             self.create_region_tab(notebook, region)
+
+        self.create_side_panel(main_container)
 
     def create_region_tab(self, notebook, region):
         tab_frame = ttk.Frame(notebook)
@@ -92,3 +97,61 @@ class GUI:
                 if probe.name == probe_name:
                     return probe
         return None
+
+    def create_side_panel(self, parent):
+        side_panel = ttk.Frame(parent)
+        side_panel.pack(side="right", fill="y", padx=(10, 0))
+
+        totals_frame = ttk.LabelFrame(side_panel, text="Total Production", padding="10")
+        totals_frame.pack(fill="both", expand=True, pady=(0, 10))
+
+        self.miranium_label = ttk.Label(totals_frame, text="Miranium: 0", font=("Arial", 12))
+        self.miranium_label.pack(anchor="w", pady=2)
+
+        self.credits_label = ttk.Label(totals_frame, text="Credits: 0", font=("Arial", 12))
+        self.credits_label.pack(anchor="w", pady=2)
+
+        self.storage_label = ttk.Label(totals_frame, text="Storage: 6000", font=("Arial", 12))
+        self.storage_label.pack(anchor="w", pady=2)
+        
+        self.resources_label = ttk.Label(totals_frame, text="Possible Precious Resources: None", font=("Arial", 12))
+        self.resources_label.pack(anchor="w", pady=2)
+
+        self.cost_label = ttk.Label(totals_frame, text="Cost: 0", font=("Arial", 12))
+        self.cost_label.pack(anchor="w", pady=2)
+        self.cost_warning = ttk.Label(totals_frame, text="(Warning: Excludes Cost of Battle Probes)", font=("Arial", 6))
+        self.cost_warning.pack(anchor="w", pady=2)
+
+        calculate_button = ttk.Button(side_panel, text="Calculate Totals", command=self.update_totals)
+        calculate_button.pack(pady=(10, 0))
+
+        install_basic_button = ttk.Button(side_panel, text="Install All Basic Probes", command=self.install_basic_probes)
+        install_basic_button.pack()
+
+    def update_totals(self):
+        totals = self.frontier_nav.calculate_total()
+
+        self.miranium_label.config(text=f"Miranium: {totals["total miranium"]}")
+        self.credits_label.config(text=f"Credits: {totals["total credits"]}")
+        self.storage_label.config(text=f"Storage: {totals["total storage"]}")
+
+        resources_text = "Possible Precious Resources: "
+        if totals["possible resources"]:
+            for resource in totals["possible resources"]:
+                resources_text += f"\n* {resource}"
+        else:
+            resources_text += "None"
+        self.resources_label.config(text=resources_text)
+
+        self.cost_label.config(text=f"Cost: {totals["total cost"]}")
+
+    def install_basic_probes(self):
+        basic_probe = self.frontier_nav.probes["basic"][0]
+
+        for region in self.frontier_nav.nodes.keys():
+            for node_id, node in self.frontier_nav.nodes[region].items():
+                node.probe_slot.install_probe(basic_probe)
+                probe_var = self.probe_dropdown_vars[f"{region}_{node_id}"]
+                probe_var.set(basic_probe.name)
+        
+        self.update_totals()

@@ -28,7 +28,7 @@ class ProbeSlot:
 
     def __init__(self, node):
         self.node = node
-        self.installed_probe = Probe(ProbeType.BASIC, None, "Basic Probe")     # Initializes with a basic probe in each slot to reflect in-game behavior of FrontierNav
+        self.installed_probe = Probe(ProbeType.LOCKED, None, "Probe Slot Locked")     # Initializes with all slots locked
         ProbeSlot.node_to_slot[node] = self               # Adds the ProbeSlot node to a list of Nodes with a ProbeSlot
         node.probe_slot = self                            # Tells the Node which ProbeSlot it's linked to
 
@@ -217,7 +217,7 @@ class ProbeSlot:
         visited_nodes = {self.node}
 
         current_probe = self.installed_probe
-        if not current_probe or current_probe.probe_type is None or current_probe.gen is None:
+        if not current_probe or current_probe.probe_type is None or current_probe.probe_type is ProbeType.LOCKED:
             return 0
         
         starting_probe_type = current_probe.probe_type
