@@ -197,13 +197,16 @@ class ProbeSlot:
                             elif self.installed_probe.probe_type == ProbeType.STORAGE:
                                 storage += storage * 1.0
                             elif self.installed_probe.probe_type == ProbeType.DUPLICATOR:
-                                types = self._duplicator_copied_types
+                                types = self._duplicator_copied_types()
                                 for type in types:
                                     if type == ProbeType.MINING:
+                                        pass
                                         miranium += miranium * 1.0
                                     elif type == ProbeType.RESEARCH:
+                                        pass
                                         credits += credits * 1.0
                                     elif type == ProbeType.STORAGE:
+                                        pass
                                         storage += storage * 1.0
                             
             self.installed_probe.boosted = 0

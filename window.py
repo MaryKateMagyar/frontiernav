@@ -1,5 +1,7 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog, messagebox
+import json
+import os
 from frontiernav import FrontierNav
 
 class GUI:
@@ -126,7 +128,13 @@ class GUI:
         calculate_button.pack(pady=(10, 0))
 
         install_basic_button = ttk.Button(side_panel, text="Install All Basic Probes", command=self.install_basic_probes)
-        install_basic_button.pack()
+        install_basic_button.pack(pady=(10, 0))
+
+        save_button = ttk.Button(side_panel, text="Save", command=self.save_probe_setup)
+        save_button.pack(side="left", padx=(60, 5), pady=(10, 0))
+
+        load_button = ttk.Button(side_panel, text="Load", command=self.load_probe_setup)
+        load_button.pack(side="left", padx=(5, 0), pady=(10, 0))
 
     def update_totals(self):
         totals = self.frontier_nav.calculate_total()
@@ -155,3 +163,51 @@ class GUI:
                 probe_var.set(basic_probe.name)
         
         self.update_totals()
+
+    def save_probe_setup(self):
+        setup = {}
+        for key, var in self.probe_dropdown_vars.items():
+            setup[key] = var.get()
+
+        default_dir = "probe_loadouts"
+        os.makedirs(default_dir, exist_ok=True)
+        filename = filedialog.asksaveasfilename(
+        defaultextension='.json',
+        filetypes=[("JSON Files", "*.json")],
+        title="Save Probe Setup",
+        initialdir=default_dir
+        )
+        if filename:
+            try:
+                with open(filename, "w") as f:
+                    json.dump(setup, f, indent=2)
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to save probe setup:\n{e}")
+
+    def load_probe_setup(self):
+        default_dir = "probe_loadouts"
+        os.makedirs(default_dir, exist_ok=True)
+        filename = filedialog.askopenfilename(
+        filetypes=[("JSON Files", "*.json")],
+            title="Load Probe Setup",
+            initialdir=default_dir
+        )
+        if not filename:
+            return
+        try:
+            with open(filename, "r") as f:
+                setup = json.load(f)
+
+            for key, probe_name in setup.items():
+                if key in self.probe_dropdown_vars:
+                    self.probe_dropdown_vars[key].set(probe_name)
+                    region, node_id = key.split("_", 1)
+                    selected_probe = self._find_probe_by_name(probe_name)
+                    probe_slot = self.frontier_nav.slots[region][node_id]
+                    if selected_probe:
+                        probe_slot.install_probe(selected_probe)
+                    else:
+                        probe_slot.lock_probe()
+            self.update_totals()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load probe setup:\n{e}")
