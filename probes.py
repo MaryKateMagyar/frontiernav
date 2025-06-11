@@ -126,13 +126,13 @@ class ProbeSlot:
                         original_probe = self.installed_probe
                         self.installed_probe = adj_probe
 
-                        duped_output = self.calculate_output()
+                        duped_output = self._calculate_base_output()
 
                         miranium += duped_output[0] # Using the adjacent probe, adds the miranium produced to the node's total output
                         credits += duped_output[1]  # Using the adjacent probe, adds the credits produced to the node's total output
                         storage += duped_output[2]  # Using the adjacent probe, adds the storage alloted to the node's total output
 
-                        if (adj_probe.probe_type == ProbeType.MINING and duped_output[3]) and len(precious_resources) == 0:   # If using the adjacent probe has a chance to produce any precious resources, adds them to the list of the node's output
+                        if (adj_probe.probe_type == ProbeType.MINING and duped_output[3]) and len(precious_resources) != 0:   # If using the adjacent probe has a chance to produce any precious resources, adds them to the list of the node's output
                             precious_resources = duped_output[3]
 
                         self.installed_probe = original_probe
@@ -152,7 +152,6 @@ class ProbeSlot:
 
             case __:
                 pass
-
         return miranium, credits, storage, precious_resources
 
     def _apply_booster_effect(self, miranium, credits, storage):
